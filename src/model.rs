@@ -13,21 +13,10 @@ pub struct Project {
     pub live_url: Option<String>,
     pub thumbnail: Option<String>,
     pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub updated_at: SystemTime,  // Currently not used in UI, kept for future database integration
     pub jd_category: Option<JDCategory>, // Johnny Decimal category
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ProjectListItem {
-    pub id: i64,
-    pub title: String,
-    pub slug: String,
-    pub summary: String,
-    pub tech_stack: Vec<String>,
-    pub thumbnail: Option<String>,
-    pub created_at: SystemTime,
-    pub jd_category: Option<JDCategory>,
-}
 
 // Johnny Decimal System structures
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -45,12 +34,6 @@ pub struct JDCategory {
     pub description: String,
 }
 
-// Full Johnny Decimal ID (e.g., 11.42)
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct JDId {
-    pub category_id: u8,  // e.g., 11
-    pub item_id: u8,      // e.g., 42
-}
 
 // Function to get all areas
 pub fn get_all_areas() -> Vec<JDArea> {
@@ -197,14 +180,4 @@ pub fn get_all_categories() -> Vec<JDCategory> {
 // Helper function to find a category by ID
 pub fn find_category_by_id(id: u8) -> Option<JDCategory> {
     get_all_categories().into_iter().find(|c| c.id == id)
-}
-
-// Helper function to find an area by ID
-pub fn find_area_by_id(id: u8) -> Option<JDArea> {
-    get_all_areas().into_iter().find(|a| a.id == id)
-}
-
-// Helper function to get categories for a specific area
-pub fn get_categories_for_area(area_id: u8) -> Vec<JDCategory> {
-    get_all_categories().into_iter().filter(|c| c.area_id == area_id).collect()
 }
