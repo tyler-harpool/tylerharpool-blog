@@ -15,9 +15,7 @@ use crate::model::{
     JDCategory,
     get_all_areas,
     get_all_categories,
-    find_category_by_id,
-    find_area_by_id,
-    get_categories_for_area
+    find_category_by_id
 };
 // It sets up the <html>, <head>, <body> structure,
 
@@ -187,17 +185,9 @@ pub fn App() -> impl IntoView {
 fn HomePage(projects: Vec<Project>) -> impl IntoView {
     let (projects_signal, _) = signal(projects);
 
-    // Get areas and categories
-    let areas_signal = use_context::<ReadSignal<Vec<JDArea>>>()
-        .expect("Areas context not found!");
-
-    let categories_signal = use_context::<ReadSignal<Vec<JDCategory>>>()
-        .expect("Categories context not found!");
-
     view! {
         <div class="container">
             <Title text="Tyler Harpool - Technology & Government Blog"/>
-
             <h1>"Tyler Harpool's Blog"</h1>
             <p class="intro-text">
                 "Welcome to my blog where I share my thoughts and experiences on software architecture,
@@ -484,8 +474,6 @@ fn ProjectPage() -> impl IntoView {
 
                         <footer class="project-footer">
                             {project.jd_category.as_ref().map(|cat| {
-                                let projects_signal = use_context::<ReadSignal<Vec<Project>>>()
-                                    .expect("Projects context not found!");
 
                                 // Store the category information in local variables
                                 let category_id = cat.id;
@@ -655,7 +643,7 @@ fn Header() -> impl IntoView {
             <div class="container header-container">
                 <div class="logo">
                     <a href="/" class="logo-link">
-                        <span class="logo-icon">JD</span>
+                        <span class="logo-icon">TH</span>
                         <span class="logo-text">"Tyler Harpool"</span>
                     </a>
                 </div>
