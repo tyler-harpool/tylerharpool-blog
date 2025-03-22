@@ -3,7 +3,7 @@ pub mod model;
 pub mod components;
 pub mod pages;
 pub mod utils;
-
+pub mod state;
 // Re-export types and functions for easy access
 pub use app::*;
 pub use model::*;

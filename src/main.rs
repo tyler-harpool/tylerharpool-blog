@@ -6,15 +6,32 @@ async fn main() {
     use leptos::logging::log;
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
+    use std::sync::Arc;
+    use tylerharpool_blog::state::AppState; // Make sure state is exported in lib.rs
     use tylerharpool_blog::app::*;
-
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
     let leptos_options = conf.leptos_options;
+
+    let database_url = "sqlite://db.sqlite"; // adjust the URL as needed
+    let pool = sqlx::SqlitePool::connect(database_url)
+        .await
+        .expect("Failed to create SQLite pool");
+    let pool = Arc::new(pool);
+
+    // Run migrations
+    sqlx::migrate!().run(&*pool).await.unwrap();
+
+    let state = AppState {
+        leptos_options: leptos_options.clone(),
+        pool: pool.clone(),
+    };
+
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(App);
 
     let app = Router::new()
+        .with_state(state)
         .leptos_routes(&leptos_options, routes, {
             let leptos_options = leptos_options.clone();
             move || shell(leptos_options.clone())
