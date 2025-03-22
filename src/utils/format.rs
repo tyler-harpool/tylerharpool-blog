@@ -1,14 +1,8 @@
+use chrono::{DateTime, Utc};
 
-use std::time::SystemTime;
 
-pub fn format_date(date: SystemTime) -> String {
-    date.duration_since(std::time::UNIX_EPOCH)
-        .map(|duration| {
-            let secs = duration.as_secs();
-            let days = (secs / 86400) % 30;
-            let months = (secs / 2592000) % 12;
-            let years = secs / 31104000;
-            format!("{}-{:02}-{:02}", years + 1970, months + 1, days + 1)
-        })
-        .unwrap_or_else(|_| "Unknown date".to_string())
+// Option 1: Update function to accept DateTime<Utc> directly
+pub fn format_date(date: DateTime<Utc>) -> String {
+    // Format the date nicely (e.g., "January 15, 2023")
+    date.format("%B %d, %Y").to_string()
 }

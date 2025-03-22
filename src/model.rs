@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
+use chrono::{DateTime, Utc};
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+
+// Base Project struct with all fields
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Project {
     pub id: Option<i64>,
     pub title: String,
@@ -12,11 +14,56 @@ pub struct Project {
     pub repo_url: Option<String>,
     pub live_url: Option<String>,
     pub thumbnail: Option<String>,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,  // Currently not used in UI, kept for future database integration
-    pub jd_category: Option<JDCategory>, // Johnny Decimal category
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub jd_category: Option<JDCategory>,
 }
 
+// Database-specific Project struct for direct mapping - we'll add FromRow when sqlx is added
+#[cfg_attr(feature = "ssr", derive(sqlx::FromRow))]
+#[derive(Debug)]
+pub struct ProjectDb {
+    pub id: Option<i64>,
+    pub title: String,
+    pub slug: String,
+    pub summary: String,
+    pub content: String,
+    // Note: tech_stack is NOT here because it's in a separate table
+    pub repo_url: Option<String>,
+    pub live_url: Option<String>,
+    pub thumbnail: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+    pub jd_category_id: Option<i64>,
+}
+
+// For creating new projects
+#[derive(Debug, Deserialize)]
+pub struct CreateProject {
+    pub title: String,
+    pub slug: String,
+    pub summary: String,
+    pub content: String,
+    pub tech_stack: Vec<String>,
+    pub repo_url: Option<String>,
+    pub live_url: Option<String>,
+    pub thumbnail: Option<String>,
+    pub jd_category_id: Option<u8>,
+}
+
+// For updating existing projects
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct UpdateProject {
+    pub title: Option<String>,
+    pub slug: Option<String>,
+    pub summary: Option<String>,
+    pub content: Option<String>,
+    pub tech_stack: Option<Vec<String>>,
+    pub repo_url: Option<String>,
+    pub live_url: Option<String>,
+    pub thumbnail: Option<String>,
+    pub jd_category_id: Option<u8>,
+}
 
 // Johnny Decimal System structures
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -26,7 +73,7 @@ pub struct JDArea {
     pub description: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct JDCategory {
     pub id: u8,          // 11, 12, 13, etc.
     pub area_id: u8,     // Which area this belongs to

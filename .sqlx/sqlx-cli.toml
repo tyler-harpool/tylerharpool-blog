@@ -1,0 +1,2 @@
+migrations_directory = "migrations"
+database_url = "sqlite:data/db.db"

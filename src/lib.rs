@@ -5,8 +5,8 @@ pub mod pages;
 pub mod utils;
 pub mod state;
 // Re-export types and functions for easy access
-pub use app::*;
-pub use model::*;
+pub use app::{shell, App};
+pub use model::{Project, JDArea, JDCategory, get_all_areas, get_all_categories, find_category_by_id};
 pub use components::*;
 pub use pages::*;
 pub use utils::*;

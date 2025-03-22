@@ -1,89 +1,109 @@
 use leptos::prelude::*;
-use leptos::logging::log;
 use crate::model::Project;
-use crate::utils::format::format_date;
 
 #[island]
-pub fn ProjectSearch(projects: Vec<Project>) -> impl IntoView {
-    let (projects_signal, _) = signal(projects);
+pub fn ProjectSearch(
+    #[prop(into)]
+    projects: Vec<Project>
+) -> impl IntoView {
     let (search_query, set_search_query) = signal(String::new());
 
-    // Filtered projects implementation
-    let filtered_projects = move || {
-        let mut projects = projects_signal.get().clone();
-        projects.sort_by(|a, b| b.created_at.cmp(&a.created_at));
-
-        let q = search_query.get().to_lowercase();
-
-        if q.is_empty() {
-            return projects;
+    let filtered_projects = Memo::new(move |_| {
+        let query = search_query.get().to_lowercase();
+        if query.is_empty() {
+            return projects.clone();
         }
 
-        projects
-            .into_iter()
-            .filter(|p| {
-                p.title.to_lowercase().contains(&q) ||
-                p.summary.to_lowercase().contains(&q) ||
-                p.tech_stack.iter().any(|tech| tech.to_lowercase().contains(&q)) ||
-                p.jd_category.as_ref().map_or(false, |c|
-                    c.name.to_lowercase().contains(&q) ||
-                    c.description.to_lowercase().contains(&q)
-                )
+        projects.iter()
+            .filter(|project| {
+                project.title.to_lowercase().contains(&query) ||
+                project.summary.to_lowercase().contains(&query) ||
+                project.tech_stack.iter().any(|tech| tech.to_lowercase().contains(&query))
             })
-            .collect::<Vec<_>>()
-    };
+            .cloned()
+            .collect::<Vec<Project>>()
+    });
 
     view! {
-        <div>
-            <input
-                type="text"
-                placeholder="Search projects..."
-                class="search-input"
-                on:input=move |ev| {
-                    log!("User typed: {}", event_target_value(&ev));
-                    set_search_query(event_target_value(&ev));
-                }
-            />
-
-            <div class="search-results">
-                {move || filtered_projects().into_iter().map(|project| {
-                    let formatted_date = format_date(project.created_at);
-                    let decimal_id = project.jd_category.as_ref().map_or("".to_string(), |cat| {
-                        format!("{}.{}", cat.id, project.id.unwrap_or(0))
-                    });
-
-                    view! {
-                        <div class="search-result-item">
-                            <div class="result-header">
-                                {project.jd_category.as_ref().map(|_| view! {
-                                    <div class="result-decimal-container">
-                                        <span class="result-decimal">{decimal_id}</span>
-                                    </div>
-                                })}
-
-                                <div class="result-title-container">
-                                    <a href={format!("/projects/{}", project.slug)} class="result-title">
-                                        {project.title}
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="result-content">
-                                <p class="result-summary">{project.summary.clone()}</p>
-                                <div class="result-meta">
-                                    <span class="result-date">{formatted_date}</span>
-                                    <div class="result-tags">
-                                        {project.tech_stack.iter().map(|tech| {
-                                            view! {
-                                                <span class="result-tag">{tech.clone()}</span>
-                                            }
-                                        }).collect::<Vec<_>>()}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <div class="project-search">
+            <div class="search-bar">
+                <input
+                    type="text"
+                    placeholder="Search projects..."
+                    on:input=move |ev| {
+                        set_search_query(event_target_value(&ev));
                     }
-                }).collect::<Vec<_>>()}
+                    prop:value=search_query
+                />
+            </div>
+
+            <div class="projects-list">
+                <Show
+                    when=move || {
+                        let filtered = filtered_projects.get();
+                        filtered.is_empty() && !search_query.get().is_empty()
+                    }
+                    fallback=move || {
+                        let filtered = filtered_projects.get();
+                        view! {
+                            <div class="project-grid">
+                                <For
+                                    each=move || filtered.clone()
+                                    key=|project| project.id.unwrap_or(0)
+                                    children=move |project| {
+                                        // Clone everything we need
+                                        let title = project.title.clone();
+                                        let summary = project.summary.clone();
+                                        let slug = project.slug.clone();
+                                        let tech_stack = project.tech_stack.clone();
+                                        let repo_url = project.repo_url.clone();
+                                        let live_url = project.live_url.clone();
+
+                                        view! {
+                                            <div class="project-card">
+                                                // Use the String directly, not as_str()
+                                                <h3>{title}</h3>
+                                                <p class="summary">{summary}</p>
+                                                <div class="tech-stack">
+                                                    <For
+                                                        each=move || tech_stack.clone()
+                                                        key=|tech| tech.clone()
+                                                        children=move |tech| {
+                                                            // Clone tech here too
+                                                            let tech = tech.clone();
+                                                            view! { <span class="tech-tag">{tech}</span> }
+                                                        }
+                                                    />
+                                                </div>
+                                                <div class="project-links">
+                                                    <a href={format!("/projects/{}", slug)} class="view-details">
+                                                        "View Details"
+                                                    </a>
+                                                    {repo_url.map(|url| {
+                                                        view! {
+                                                            <a href={url} class="repo-link" target="_blank">
+                                                                "GitHub Repo"
+                                                            </a>
+                                                        }
+                                                    })}
+                                                    {live_url.map(|url| {
+                                                        view! {
+                                                            <a href={url} class="live-link" target="_blank">
+                                                                "Live Demo"
+                                                            </a>
+                                                        }
+                                                    })}
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                />
+                            </div>
+                        }
+                    }
+                >
+                    <p class="no-results">"No projects match your search."</p>
+                </Show>
             </div>
         </div>
     }

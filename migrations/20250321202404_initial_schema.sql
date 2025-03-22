@@ -1,40 +1,29 @@
--- Add migration script here
-CREATE TABLE IF NOT EXISTS projects (
+DROP TABLE IF EXISTS project_technologies;
+DROP TABLE IF EXISTS projects;
+
+-- Basic projects table
+CREATE TABLE projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
     summary TEXT NOT NULL,
     content TEXT NOT NULL,
-    tech_stack TEXT NOT NULL,
     repo_url TEXT,
     live_url TEXT,
     thumbnail TEXT,
-    created_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL,
+    created_at TEXT NOT NULL,  -- ISO8601 format
+    updated_at TEXT NOT NULL,  -- ISO8601 format
     jd_category_id INTEGER
 );
 
--- Create some indexes to improve query performance
+-- Simple junction table for project technologies
+CREATE TABLE project_technologies (
+    project_id INTEGER NOT NULL,
+    technology TEXT NOT NULL,
+    PRIMARY KEY (project_id, technology),
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+-- Add some basic indexes
 CREATE INDEX idx_projects_slug ON projects(slug);
 CREATE INDEX idx_projects_category ON projects(jd_category_id);
-
--- Create blog posts table
-CREATE TABLE IF NOT EXISTS blog_posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    slug TEXT NOT NULL UNIQUE,
-    summary TEXT NOT NULL,
-    content TEXT NOT NULL,
-    tags TEXT NOT NULL, -- JSON array stored as text
-    image_url TEXT,
-    published_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL,
-    status TEXT NOT NULL, -- 'draft', 'published'
-    jd_category_id INTEGER
-);
-
--- Create some indexes to improve query performance for blog posts
-CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
-CREATE INDEX idx_blog_posts_status ON blog_posts(status);
-CREATE INDEX idx_blog_posts_category ON blog_posts(jd_category_id);
-CREATE INDEX idx_blog_posts_published_at ON blog_posts(published_at);
