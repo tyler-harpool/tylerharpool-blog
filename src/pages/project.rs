@@ -1,176 +1,196 @@
 use leptos::prelude::*;
-use leptos_meta::Title;
 use leptos_router::hooks::use_params_map;
-use crate::model::{Project, JDArea};
-use crate::utils::{format::format_date, markdown::markdown_to_html};
-use crate::components::RenderRelatedProjects;
+use leptos_meta::Title;
+use crate::app::get_project_by_slug;
+use crate::app::get_projects;
+use crate::utils::format::format_date;
+use crate::components::related_projects::RenderRelatedProjects;
 
 #[component]
 pub fn ProjectPage() -> impl IntoView {
-    // Grab the project list from context
-    let projects_signal = use_context::<ReadSignal<Vec<Project>>>()
-        .expect("Projects context not found in ProjectPage!");
-
-    // The :slug from the URL
+    // Get the slug from the URL
     let params = use_params_map();
-    let slug = move || params.with(|p| p.get("slug").unwrap_or_default());
+    let slug = move || params.with(|p| p.get("slug").map(|s| s.clone()).unwrap_or_default());
 
-    // Find the project that matches
-    let current_project = move || {
-        let s = slug();
-        projects_signal
-            .get()
-            .iter()
-            .find(|p| p.slug == s)
-            .cloned()
-    };
-
-    // Format creation date
-    let formatted_date = move || {
-        current_project().map(|proj| {
-            format_date(proj.created_at)
-        })
-        .unwrap_or_else(|| "Unknown".to_string())
-    };
-
-    // Convert current project's content to HTML
-    let content_html = move || {
-        current_project().map(|proj| markdown_to_html(&proj.content)).unwrap_or_default()
-    };
-
-    // Show the project or a fallback if none found
-    view! {
-        <Show
-            when=move || current_project().is_some()
-            fallback=|| view! {
-                <div class="not-found container">
-                    <h2>"Project not found!"</h2>
-                </div>
+    // Create a resource for just this project
+    let project = Resource::new(
+        slug,
+        |current_slug| async move {
+            if !current_slug.is_empty() {
+                get_project_by_slug(current_slug).await
+            } else {
+                Ok(None)
             }
-        >
-            {move || {
-                let project = current_project().unwrap();
-                let title = project.title.clone();
+        }
+    );
 
-                view! {
-                    <div class="project-detail container">
-                        <Title text={format!("{} - Tyler Harpool", title)}/>
+    // Create a resource for all projects
+    let all_projects = Resource::new(
+        || (), |_| async move { get_projects().await }
+    );
 
-                        <header class="project-header">
-                            {project.jd_category.as_ref().map(|cat| {
-                                let areas_signal = use_context::<ReadSignal<Vec<JDArea>>>()
-                                    .expect("Areas context not found!");
+    view! {
+        <div class="project-page">
+            <Suspense fallback=move || view! { <p class="loading">"Loading project details..."</p> }>
+                {move || {
+                    match project.get() {
+                        None => view! { <p class="loading">"Loading project details..."</p> }.into_any(),
+                        Some(Ok(Some(proj))) => {
+                            // Set up context for related projects
+                            let (projects_signal, _) = signal(
+                                all_projects.get().and_then(|r| r.ok()).unwrap_or_default()
+                            );
+                            provide_context(projects_signal);
 
-                                let parent_area = areas_signal.get().iter()
-                                    .find(|a| a.id == cat.area_id)
-                                    .cloned();
+                            // Basic project data
+                            let title_text = format!("{} | Tyler Harpool", proj.title);
+                            let formatted_date = format_date(proj.created_at);
+                            let project_id = proj.id;
 
-                                let project_decimal = format!("{}.{}", cat.id, project.id.unwrap_or(0));
+                            // Process JD category data if available
+                            let (breadcrumbs, decimal_display, related_projects) =
+                                if let Some(cat) = &proj.jd_category {
+                                    // Create breadcrumbs
+                                    let area = cat.area.as_ref();
+                                    let area_id = cat.area_id;
+                                    let area_name = area.map_or("".to_string(), |a| a.name.clone());
 
-                                view! {
-                                  <div class="project-jd-info">
-                                      <div class="project-breadcrumbs">
-                                          <a href="/areas">"Areas"</a>
-                                          " > "
-                                          {parent_area.as_ref().map(|area| view! {
-                                              <>
-                                                  <a href={format!("/areas/{}", area.id)}>
-                                                      <span class="breadcrumb-area-code">{format!("{}-{}", area.id, area.id + 9)}</span>
-                                                      <span class="breadcrumb-area-name">{" "}{area.name.clone()}</span>
-                                                  </a>
-                                                  " > "
-                                              </>
-                                          })}
-                                          <a href={format!("/categories/{}", cat.id)}>
-                                              <span class="breadcrumb-category-code">{cat.id}</span>
-                                              <span class="breadcrumb-category-name">{" "}{cat.name.clone()}</span>
-                                          </a>
-                                      </div>
+                                    let breadcrumbs = view! {
+                                        <div class="project-breadcrumbs">
+                                            <a href="/areas"><span class="breadcrumb-label">"Areas"</span></a>
+                                            " / "
+                                            <a href={format!("/areas/{}", area_id)}>
+                                                <span class="breadcrumb-area-code">{area_id}</span>
+                                                <span class="breadcrumb-label">{area_name}</span>
+                                            </a>
+                                            " / "
+                                            <a href={format!("/categories/{}", cat.id)}>
+                                                <span class="breadcrumb-category-code">{cat.id}</span>
+                                                <span class="breadcrumb-label">{cat.name.clone()}</span>
+                                            </a>
+                                        </div>
+                                    };
 
-                                      <div class="project-decimal-container">
-                                          <span class="project-decimal">{project_decimal}</span>
-                                          <div class="project-category-label">
-                                              <span class="project-category-id">{cat.id}</span>
-                                              <span class="project-category-name">{cat.name.clone()}</span>
-                                          </div>
-                                      </div>
-                                  </div>
-                                }
-                            })}
+                                    // Create decimal display
+                                    let decimal = format!("{}.{}", cat.area_id, cat.id);
+                                    let decimal_display = view! {
+                                        <div class="project-decimal-container">
+                                            <div class="project-decimal">{decimal}</div>
+                                            <div class="project-category-label">
+                                                <div class="project-category-id">{cat.id}</div>
+                                                <div class="project-category-name">{cat.name.clone()}</div>
+                                            </div>
+                                        </div>
+                                    };
 
-                            <h1 class="project-title">{title}</h1>
-                            <p class="date">"Published on " {formatted_date()}</p>
+                                    // Create related projects component
+                                    let category_id = cat.id;
+                                    let category_link = format!("/categories/{}", category_id);
+                                    let view_all_text = format!("View all projects in {}", cat.name.clone());
 
-                            <div class="project-meta">
-                                <div class="tech-stack">
-                                    <h3>"Technologies Used"</h3>
-                                    <ul class="tags">
-                                        {project.tech_stack.iter().map(|tech| {
-                                           let tech_str = tech.clone();
-                                            view! {
-                                                <li class="tag">{tech_str}</li>
-                                            }
-                                        }).collect::<Vec<_>>()}
-                                    </ul>
-                                </div>
-
-                                <div class="project-links">
-                                    {project.repo_url.clone().map(|url| view! {
-                                        <a href={url} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                            "View Code Repository"
-                                        </a>
-                                    })}
-                                    {project.live_url.clone().map(|url| view! {
-                                        <a href={url} class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
-                                            "Visit Live Site"
-                                        </a>
-                                    })}
-                                </div>
-                            </div>
-                        </header>
-
-                        {project.thumbnail.clone().map(|url| view! {
-                            <div class="project-image">
-                                <img src={url} alt={project.title.clone()} />
-                            </div>
-                        })}
-
-                        <div class="project-summary">
-                            <h2>"Project Summary"</h2>
-                            <p>{project.summary.clone()}</p>
-                        </div>
-
-                        <div class="project-content">
-                            <div inner_html={content_html()}></div>
-                        </div>
-
-                        <footer class="project-footer">
-                            {project.jd_category.as_ref().map(|cat| {
-
-                                // Store the category information in local variables
-                                let category_id = cat.id;
-                                let category_name = cat.name.clone();
-
-                                let category_link = format!("/categories/{}", category_id);
-                                let view_all_text = format!("View all in {}", category_name);
-
-                                view! {
-                                    <div class="related-projects-section">
+                                    let related = view! {
                                         <RenderRelatedProjects
-                                            project_id={project.id}
-                                            category_id={category_id}
-                                            category_link={category_link}
-                                            view_all_text={view_all_text}
+                                            project_id=project_id
+                                            category_id=category_id
+                                            category_link=category_link
+                                            view_all_text=view_all_text
                                         />
-                                    </div>
-                                }
-                            })}
+                                    };
 
-                            <a href="/" class="btn btn-back">"← Back to All Articles"</a>
-                        </footer>
-                    </div>
-                }
-            }}
-        </Show>
+                                    (Some(breadcrumbs), Some(decimal_display), Some(related))
+                                } else {
+                                    (None, None, None)
+                                };
+
+                            // Links and tech tags
+                            let tech_stack = proj.tech_stack.iter().map(|tech| {
+                                view! { <span class="tag">{tech.clone()}</span> }
+                            }).collect::<Vec<_>>();
+
+                            // Final view
+                            view! {
+                                <>
+                                    <Title text=title_text />
+                                    <div class="container">
+                                        <article class="project-detail">
+                                            <div class="project-jd-info">
+                                                {breadcrumbs}
+                                                {decimal_display}
+                                            </div>
+
+                                            <header class="project-header">
+                                                <h1 class="project-title">{proj.title.clone()}</h1>
+                                                <div class="project-meta">
+                                                    <time class="project-date">{formatted_date}</time>
+                                                </div>
+                                            </header>
+
+                                            <div class="project-summary">
+                                                <p>{proj.summary.clone()}</p>
+                                            </div>
+
+                                            <div class="tech-stack">
+                                                <h3>"Technologies"</h3>
+                                                <div class="tags">{tech_stack}</div>
+                                            </div>
+
+                                            <div class="project-links">
+                                                {proj.repo_url.as_ref().map(|url| view! {
+                                                    <a href={url.clone()} class="btn btn-primary" target="_blank">
+                                                        "View Repository"
+                                                    </a>
+                                                })}
+
+                                                {proj.live_url.as_ref().map(|url| view! {
+                                                    <a href={url.clone()} class="btn btn-secondary" target="_blank">
+                                                        "View Live Project"
+                                                    </a>
+                                                })}
+                                            </div>
+
+                                            <div class="project-content markdown">
+                                                <div inner_html=markdown_to_html(&proj.content)></div>
+                                            </div>
+
+                                            {related_projects}
+
+                                            <div class="navigation-links">
+                                                <a href="/" class="btn btn-back">"← Back to Projects"</a>
+                                            </div>
+                                        </article>
+                                    </div>
+                                </>
+                            }.into_any()
+                        },
+                        Some(Ok(None)) => view! { <div class="error">"Project not found."</div> }.into_any(),
+                        Some(Err(e)) => view! { <div class="error">"Error loading project: " {e.to_string()}</div> }.into_any(),
+                    }
+                }}
+            </Suspense>
+        </div>
+    }
+}
+
+// Helper function to convert markdown to HTML
+fn markdown_to_html(markdown: &str) -> String {
+    #[cfg(feature = "ssr")]
+    {
+        use pulldown_cmark::{Parser, Options, html};
+
+        let mut options = Options::empty();
+        options.insert(Options::ENABLE_STRIKETHROUGH);
+        options.insert(Options::ENABLE_TABLES);
+
+        let parser = Parser::new_ext(markdown, options);
+        let mut html_output = String::new();
+        html::push_html(&mut html_output, parser);
+
+        html_output
+    }
+
+    #[cfg(not(feature = "ssr"))]
+    {
+        // On the client, we'll use the pre-rendered HTML
+        markdown.to_string()
     }
 }
