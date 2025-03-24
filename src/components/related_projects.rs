@@ -4,7 +4,7 @@ use crate::model::Project;
 #[component]
 pub fn RenderRelatedProjects(
     project_id: Option<i64>,
-    category_id: u8,
+    category_id: i64,
     category_link: String,
     view_all_text: String,
 ) -> impl IntoView {

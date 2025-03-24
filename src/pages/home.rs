@@ -58,7 +58,7 @@ pub fn HomePage(
                             <Show
                                 when=move || projects.get().unwrap().is_ok()
                                 fallback=move || {
-                                    let err = projects.get().unwrap().unwrap_err();
+                                    let _err = projects.get().unwrap().unwrap_err();
                                     view! {
                                         <div class="error-container">
                                             <p class="error-text">"Error loading projects: {err.to_string()}"</p>

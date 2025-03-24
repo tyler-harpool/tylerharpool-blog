@@ -10,7 +10,7 @@ pub fn CategoryDetailPage() -> impl IntoView {
     let id_str = params.with(|params| params.get("id").unwrap_or_default().to_string());
 
     // Parse the ID from the URL path parameter
-    let id = id_str.parse::<u8>().unwrap_or(0);
+    let id = id_str.parse::<i64>().unwrap_or(0);
 
     // Get the category by ID
     let category = Memo::new(move |_| find_category_by_id(id));

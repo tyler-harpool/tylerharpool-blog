@@ -16,7 +16,7 @@ pub fn AreaDetailPage() -> impl IntoView {
     let area_id = move || {
         params.with(|p| {
             p.get("id")
-                .and_then(|id| id.parse::<u8>().ok())
+                .and_then(|id| id.parse::<i64>().ok())
                 .unwrap_or(0)
         })
     };
