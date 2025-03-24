@@ -42,72 +42,74 @@ pub fn ProjectPage() -> impl IntoView {
                             );
                             provide_context(projects_signal);
 
-                            // Basic project data
+                            // Variable preparation
                             let title_text = format!("{} | Tyler Harpool", proj.title);
+                            let project_title = proj.title.clone();
+                            let project_summary = proj.summary.clone();
+                            let project_content = proj.content.clone();
                             let formatted_date = format_date(proj.created_at);
                             let project_id = proj.id;
 
-                            // Process JD category data if available
-                            let (breadcrumbs, decimal_display, related_projects) =
-                                if let Some(cat) = &proj.jd_category {
-                                    // Create breadcrumbs
-                                    let area = cat.area.as_ref();
-                                    let area_id = cat.area_id;
-                                    let area_name = area.map_or("".to_string(), |a| a.name.clone());
+                            // Prepare breadcrumbs and decimal display
+                            let breadcrumbs = proj.jd_category.as_ref().map(|cat| {
+                                let area = cat.area.as_ref();
+                                let area_id = cat.area_id;
+                                let area_name = area.map_or("".to_string(), |a| a.name.clone());
 
-                                    let breadcrumbs = view! {
-                                        <div class="project-breadcrumbs">
-                                            <a href="/areas"><span class="breadcrumb-label">"Areas"</span></a>
-                                            " / "
-                                            <a href={format!("/areas/{}", area_id)}>
-                                                <span class="breadcrumb-area-code">{area_id}</span>
-                                                <span class="breadcrumb-label">{area_name}</span>
-                                            </a>
-                                            " / "
-                                            <a href={format!("/categories/{}", cat.id)}>
-                                                <span class="breadcrumb-category-code">{cat.id}</span>
-                                                <span class="breadcrumb-label">{cat.name.clone()}</span>
-                                            </a>
+                                view! {
+                                    <div class="project-breadcrumbs">
+                                        <a href="/areas">
+                                            <span class="breadcrumb-label">"Areas"</span>
+                                        </a>
+                                        " / "
+                                        <a href={format!("/areas/{}", area_id)}>
+                                            <span class="breadcrumb-area-code">{area_id}</span>
+                                            <span class="breadcrumb-label">{area_name}</span>
+                                        </a>
+                                        " / "
+                                        <a href={format!("/categories/{}", cat.id)}>
+                                            <span class="breadcrumb-category-code">{cat.id}</span>
+                                            <span class="breadcrumb-label">{cat.name.clone()}</span>
+                                        </a>
+                                    </div>
+                                }
+                            });
+
+                            let decimal_display = proj.jd_category.as_ref().map(|cat| {
+                                let decimal = format!("{}.{}", cat.area_id, cat.id);
+
+                                view! {
+                                    <div class="project-decimal-container">
+                                        <div class="project-decimal">{decimal}</div>
+                                        <div class="project-category-label">
+                                            <div class="project-category-id">{cat.id}</div>
+                                            <div class="project-category-name">{cat.name.clone()}</div>
                                         </div>
-                                    };
+                                    </div>
+                                }
+                            });
 
-                                    // Create decimal display
-                                    let decimal = format!("{}.{}", cat.area_id, cat.id);
-                                    let decimal_display = view! {
-                                        <div class="project-decimal-container">
-                                            <div class="project-decimal">{decimal}</div>
-                                            <div class="project-category-label">
-                                                <div class="project-category-id">{cat.id}</div>
-                                                <div class="project-category-name">{cat.name.clone()}</div>
-                                            </div>
-                                        </div>
-                                    };
+                            let related_projects = proj.jd_category.as_ref().map(|cat| {
+                                let category_id = cat.id;
+                                let category_link = format!("/categories/{}", category_id);
+                                let view_all_text = format!("View all projects in {}", cat.name.clone());
 
-                                    // Create related projects component
-                                    let category_id = cat.id;
-                                    let category_link = format!("/categories/{}", category_id);
-                                    let view_all_text = format!("View all projects in {}", cat.name.clone());
+                                view! {
+                                    <RenderRelatedProjects
+                                        project_id=project_id
+                                        category_id=category_id
+                                        category_link=category_link
+                                        view_all_text=view_all_text
+                                    />
+                                }
+                            });
 
-                                    let related = view! {
-                                        <RenderRelatedProjects
-                                            project_id=project_id
-                                            category_id=category_id
-                                            category_link=category_link
-                                            view_all_text=view_all_text
-                                        />
-                                    };
-
-                                    (Some(breadcrumbs), Some(decimal_display), Some(related))
-                                } else {
-                                    (None, None, None)
-                                };
-
-                            // Links and tech tags
+                            // Tech stack tags
                             let tech_stack = proj.tech_stack.iter().map(|tech| {
-                                view! { <span class="tag">{tech.clone()}</span> }
+                                let tech_owned = tech.clone();
+                                view! { <span class="tag">{tech_owned}</span> }
                             }).collect::<Vec<_>>();
 
-                            // Final view
                             view! {
                                 <>
                                     <Title text=title_text />
@@ -119,37 +121,42 @@ pub fn ProjectPage() -> impl IntoView {
                                             </div>
 
                                             <header class="project-header">
-                                                <h1 class="project-title">{proj.title.clone()}</h1>
+                                                <h1 class="project-title">{project_title}</h1>
                                                 <div class="project-meta">
                                                     <time class="project-date">{formatted_date}</time>
                                                 </div>
                                             </header>
 
                                             <div class="project-summary">
-                                                <p>{proj.summary.clone()}</p>
+                                                <p>{project_summary}</p>
                                             </div>
 
                                             <div class="tech-stack">
                                                 <h3>"Technologies"</h3>
-                                                <div class="tags">{tech_stack}</div>
+                                                <div class="tags">
+                                                    {tech_stack}
+                                                </div>
                                             </div>
 
                                             <div class="project-links">
-                                                {proj.repo_url.as_ref().map(|url| view! {
-                                                    <a href={url.clone()} class="btn btn-primary" target="_blank">
-                                                        "View Repository"
-                                                    </a>
+                                                {proj.repo_url.as_ref().map(|url| {
+                                                    let url_clone = url.clone();
+                                                    view! {
+                                                        <a href=url_clone class="btn btn-primary" target="_blank">"View Repository"</a>
+                                                    }
                                                 })}
 
-                                                {proj.live_url.as_ref().map(|url| view! {
-                                                    <a href={url.clone()} class="btn btn-secondary" target="_blank">
-                                                        "View Live Project"
-                                                    </a>
+                                                {proj.live_url.as_ref().map(|url| {
+                                                    let url_clone = url.clone();
+                                                    view! {
+                                                        <a href=url_clone class="btn btn-secondary" target="_blank">"View Live Project"</a>
+                                                    }
                                                 })}
                                             </div>
 
                                             <div class="project-content markdown">
-                                                <div inner_html=markdown_to_html(&proj.content)></div>
+                                                // Simplified approach that should work better
+                                                <div inner_html={markdown_to_html(&project_content)}></div>
                                             </div>
 
                                             {related_projects}
@@ -175,22 +182,78 @@ pub fn ProjectPage() -> impl IntoView {
 fn markdown_to_html(markdown: &str) -> String {
     #[cfg(feature = "ssr")]
     {
-        use pulldown_cmark::{Parser, Options, html};
+        // A very simple markdown to HTML converter
+        // This isn't a full markdown parser, but should handle basic needs
+        let mut html = String::new();
+        let lines = markdown.lines();
 
-        let mut options = Options::empty();
-        options.insert(Options::ENABLE_STRIKETHROUGH);
-        options.insert(Options::ENABLE_TABLES);
+        let mut in_list = false;
+        let mut in_code_block = false;
 
-        let parser = Parser::new_ext(markdown, options);
-        let mut html_output = String::new();
-        html::push_html(&mut html_output, parser);
+        for line in lines {
+            let trimmed = line.trim();
 
-        html_output
+            // Handle headers
+            if trimmed.starts_with("# ") {
+                html.push_str(&format!("<h1>{}</h1>\n", &trimmed[2..]));
+            } else if trimmed.starts_with("## ") {
+                html.push_str(&format!("<h2>{}</h2>\n", &trimmed[3..]));
+            } else if trimmed.starts_with("### ") {
+                html.push_str(&format!("<h3>{}</h3>\n", &trimmed[4..]));
+            }
+            // Handle lists
+            else if trimmed.starts_with("* ") || trimmed.starts_with("- ") {
+                if !in_list {
+                    html.push_str("<ul>\n");
+                    in_list = true;
+                }
+                html.push_str(&format!("<li>{}</li>\n", &trimmed[2..]));
+            }
+            // Handle code blocks
+            else if trimmed.starts_with("```") {
+                if !in_code_block {
+                    html.push_str("<pre><code>\n");
+                    in_code_block = true;
+                } else {
+                    html.push_str("</code></pre>\n");
+                    in_code_block = false;
+                }
+            }
+            // Handle blank lines
+            else if trimmed.is_empty() {
+                if in_list {
+                    html.push_str("</ul>\n");
+                    in_list = false;
+                } else if !in_code_block {
+                    html.push_str("<br />\n");
+                } else {
+                    html.push_str("\n");
+                }
+            }
+            // Regular paragraph text
+            else {
+                if in_code_block {
+                    html.push_str(line);
+                    html.push_str("\n");
+                } else {
+                    html.push_str(&format!("<p>{}</p>\n", line));
+                }
+            }
+        }
+
+        // Close any open tags
+        if in_list {
+            html.push_str("</ul>\n");
+        }
+        if in_code_block {
+            html.push_str("</code></pre>\n");
+        }
+
+        html
     }
 
     #[cfg(not(feature = "ssr"))]
     {
-        // On the client, we'll use the pre-rendered HTML
         markdown.to_string()
     }
 }
