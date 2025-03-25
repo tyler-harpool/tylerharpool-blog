@@ -5,6 +5,7 @@ use crate::app::get_project_by_slug;
 use crate::app::get_projects;
 use crate::utils::format::format_date;
 use crate::components::related_projects::RenderRelatedProjects;
+use crate::components::{JohnnyDecimal, JohnnyDecimalBreadcrumbs};
 
 #[component]
 pub fn ProjectPage() -> impl IntoView {
@@ -42,6 +43,10 @@ pub fn ProjectPage() -> impl IntoView {
                             );
                             provide_context(projects_signal);
 
+                            // Convert to signals for reactivity instead of direct cloning
+                            let jd_category = Memo::new(move |_| proj.jd_category.clone());
+                            let has_jd_info = move || jd_category.get().is_some();
+
                             // Variable preparation
                             let title_text = format!("{} | Tyler Harpool", proj.title);
                             let project_title = proj.title.clone();
@@ -50,65 +55,29 @@ pub fn ProjectPage() -> impl IntoView {
                             let formatted_date = format_date(proj.created_at);
                             let project_id = proj.id;
 
-                            // Prepare breadcrumbs and decimal display
-                            let breadcrumbs = proj.jd_category.as_ref().map(|cat| {
-                                let area = cat.area.as_ref();
-                                let area_id = cat.area_id;
-                                let area_name = area.map_or("".to_string(), |a| a.name.clone());
+                            // Tech stack tags
+                            let tech_stack = proj.tech_stack.iter().map(|tech| {
+                                let tech_owned = tech.clone();
+                                view! { <span class="tag">{tech_owned}</span> }
+                            }).collect::<Vec<_>>();
 
-                                view! {
-                                    <div class="project-breadcrumbs">
-                                        <a href="/areas">
-                                            <span class="breadcrumb-label">"Areas"</span>
-                                        </a>
-                                        " / "
-                                        <a href={format!("/areas/{}", area_id)}>
-                                            <span class="breadcrumb-area-code">{area_id}</span>
-                                            <span class="breadcrumb-label">{area_name}</span>
-                                        </a>
-                                        " / "
-                                        <a href={format!("/categories/{}", cat.id)}>
-                                            <span class="breadcrumb-category-code">{cat.id}</span>
-                                            <span class="breadcrumb-label">{cat.name.clone()}</span>
-                                        </a>
-                                    </div>
-                                }
-                            });
-
-                            let decimal_display = proj.jd_category.as_ref().map(|cat| {
-                                let decimal = format!("{}.{}", cat.area_id, cat.id);
-
-                                view! {
-                                    <div class="project-decimal-container">
-                                        <div class="project-decimal">{decimal}</div>
-                                        <div class="project-category-label">
-                                            <div class="project-category-id">{cat.id}</div>
-                                            <div class="project-category-name">{cat.name.clone()}</div>
-                                        </div>
-                                    </div>
-                                }
-                            });
-
-                            let related_projects = proj.jd_category.as_ref().map(|cat| {
+                            // Related projects - using signals
+                            let related_projects = if let Some(cat) = jd_category.get().as_ref() {
                                 let category_id = cat.id;
                                 let category_link = format!("/categories/{}", category_id);
                                 let view_all_text = format!("View all projects in {}", cat.name.clone());
 
-                                view! {
+                                Some(view! {
                                     <RenderRelatedProjects
                                         project_id=project_id
                                         category_id=category_id
                                         category_link=category_link
                                         view_all_text=view_all_text
                                     />
-                                }
-                            });
-
-                            // Tech stack tags
-                            let tech_stack = proj.tech_stack.iter().map(|tech| {
-                                let tech_owned = tech.clone();
-                                view! { <span class="tag">{tech_owned}</span> }
-                            }).collect::<Vec<_>>();
+                                })
+                            } else {
+                                None
+                            };
 
                             view! {
                                 <>
@@ -116,8 +85,72 @@ pub fn ProjectPage() -> impl IntoView {
                                     <div class="container">
                                         <article class="project-detail">
                                             <div class="project-jd-info">
-                                                {breadcrumbs}
-                                                {decimal_display}
+                                                <Show
+                                                    when=has_jd_info
+                                                    fallback=move || {
+                                                        view! {
+                                                            <div class="jd-breadcrumbs empty">
+                                                                <span>"No category information available"</span>
+                                                            </div>
+                                                        }
+                                                    }
+                                                >
+                                                    // Both branches return the same type now
+                                                    {move || {
+                                                        if let Some(cat) = jd_category.get().as_ref() {
+                                                            let area = cat.area.as_ref();
+                                                            let area_id = cat.area_id.to_string();
+                                                            let area_name = area.map_or("".to_string(), |a| a.name.clone());
+                                                            let category_id = cat.id.to_string();
+                                                            let category_name = cat.name.clone();
+
+                                                            view! {
+                                                                <JohnnyDecimalBreadcrumbs
+                                                                    area_id=area_id
+                                                                    area_name=area_name
+                                                                    category_id=category_id
+                                                                    category_name=category_name
+                                                                />
+                                                            }.into_any()
+                                                        } else {
+                                                            view! { <div></div> }.into_any()
+                                                        }
+                                                    }}
+                                                </Show>
+
+                                                <Show
+                                                    when=has_jd_info
+                                                    fallback=move || {
+                                                        view! {
+                                                            <div class="jd-container empty">
+                                                                <div class="jd-notation">
+                                                                    <span>"-"</span>
+                                                                    <span class="jd-separator">.</span>
+                                                                    <span>"-"</span>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                >
+                                                    {move || {
+                                                        if let Some(cat) = jd_category.get().as_ref() {
+                                                            let area_id = cat.area_id.to_string();
+                                                            let category_id = cat.id.to_string();
+                                                            let category_name = cat.name.clone();
+
+                                                            view! {
+                                                                <JohnnyDecimal
+                                                                    area_id=area_id
+                                                                    category_id=category_id
+                                                                    category_name=category_name
+                                                                    show_name=true
+                                                                />
+                                                            }.into_any()
+                                                        } else {
+                                                            view! { <div></div> }.into_any()
+                                                        }
+                                                    }}
+                                                </Show>
                                             </div>
 
                                             <header class="project-header">
@@ -155,7 +188,6 @@ pub fn ProjectPage() -> impl IntoView {
                                             </div>
 
                                             <div class="project-content markdown">
-                                                // Simplified approach that should work better
                                                 <div inner_html={markdown_to_html(&project_content)}></div>
                                             </div>
 

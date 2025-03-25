@@ -2,6 +2,7 @@ use leptos::prelude::*;
 use leptos_meta::Title;
 use leptos_router::hooks::use_params_map;
 use crate::model::{JDArea, JDCategory};
+use crate::components::{JohnnyDecimalRange, CategoryBadge};
 
 #[component]
 pub fn AreaDetailPage() -> impl IntoView {
@@ -47,6 +48,9 @@ pub fn AreaDetailPage() -> impl IntoView {
         >
             {move || {
                 let area = current_area().unwrap();
+                let start = area.id.to_string();
+                let end = (area.id + 9).to_string();
+
                 view! {
                     <div class="area-detail container">
                         <Title text={format!("{} - Tyler Harpool", area.name.clone())}/>
@@ -59,8 +63,11 @@ pub fn AreaDetailPage() -> impl IntoView {
                             </div>
 
                             <div class="area-title-section">
-                                <span class="area-number">{format!("{}-{}", area.id, area.id + 9)}</span>
-                                <h1>{area.name.clone()}</h1>
+                                <JohnnyDecimalRange
+                                    start=start
+                                    end=end
+                                    name=area.name.clone()
+                                />
                             </div>
 
                             <p class="area-description">{area.description.clone()}</p>
@@ -69,11 +76,13 @@ pub fn AreaDetailPage() -> impl IntoView {
                         <h2 class="section-title">"Categories in this Area"</h2>
                         <div class="jd-categories-grid">
                             {move || area_categories().into_iter().map(|category| {
+                                let category_id = category.id.to_string();
+
                                 view! {
                                     <div class="jd-category-card">
                                         <div class="jd-category-header">
                                             <div class="jd-category-label">
-                                                <span class="jd-category-number">{category.id}</span>
+                                                <CategoryBadge id=category_id.clone() />
                                             </div>
                                             <div class="jd-category-title-container">
                                                 <a href={format!("/categories/{}", category.id)} class="jd-category-title">

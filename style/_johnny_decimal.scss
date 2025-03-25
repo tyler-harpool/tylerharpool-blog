@@ -1,0 +1,253 @@
+// _johnny_decimal.scss
+// A unified styling system for Johnny Decimal elements
+
+// Variables (will inherit from main variables)
+$jd-area-color: var(--primary-color);
+$jd-category-color: var(--accent-color);
+$jd-background: var(--dark-color);
+$jd-text-color: white;
+$jd-border-radius: var(--border-radius);
+
+// Core Johnny Decimal compact notation
+.jd-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.jd-notation {
+  display: inline-flex;
+  align-items: center;
+  background-color: $jd-background;
+  border-radius: $jd-border-radius;
+  padding: 0.5rem 0.75rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: $jd-text-color;
+  line-height: 1;
+}
+
+.jd-area {
+  color: $jd-area-color;
+}
+
+.jd-separator {
+  margin: 0 0.15rem;
+  opacity: 0.7;
+}
+
+.jd-category {
+  color: $jd-category-color;
+}
+
+.jd-name {
+  margin-left: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+// Johnny Decimal area range (for area listings)
+.jd-range-container {
+  display: flex;
+  align-items: center;
+  background-color: $jd-background;
+  padding: 0.75rem 1rem;
+  border-radius: $jd-border-radius;
+  margin-bottom: 1rem;
+}
+
+.jd-range {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: $jd-area-color;
+  padding: 0.3rem 0.5rem;
+  background-color: rgba(white, 0.1);
+  border-radius: 4px;
+}
+
+.jd-range-name {
+  margin-left: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $jd-text-color;
+}
+
+// Johnny Decimal header (for article listings)
+.jd-header {
+  display: flex;
+  border-top-left-radius: $jd-border-radius;
+  border-top-right-radius: $jd-border-radius;
+  overflow: hidden;
+}
+
+.jd-header-left {
+  background-color: $jd-background;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4rem;
+}
+
+.jd-header-notation {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: $jd-text-color;
+}
+
+.jd-header-area {
+  color: $jd-area-color;
+}
+
+.jd-header-category {
+  color: $jd-category-color;
+}
+
+.jd-header-title {
+  background-color: $jd-area-color;
+  padding: 0.75rem 1rem;
+  flex-grow: 1;
+  color: $jd-text-color;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+// Johnny Decimal category badge (circle with number)
+.jd-category-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: $jd-category-color;
+  color: $jd-text-color;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+// Johnny Decimal breadcrumbs
+.jd-breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.jd-breadcrumb-separator {
+  margin: 0 0.5rem;
+  color: #999;
+}
+
+.jd-breadcrumb-area {
+  display: inline-block;
+  background-color: rgba($jd-area-color, 0.1);
+  color: $jd-area-color;
+  border: 1px solid rgba($jd-area-color, 0.2);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  margin-right: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.jd-breadcrumb-category {
+  display: inline-block;
+  background-color: rgba($jd-category-color, 0.1);
+  color: $jd-category-color;
+  border: 1px solid rgba($jd-category-color, 0.2);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  margin-right: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+// Integrated styles for the project page
+// Replaces the existing styles in your project-detail styles
+
+.project-decimal-container {
+  background-color: $jd-background;
+  padding: 0.75rem 1rem;
+  border-radius: $jd-border-radius;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.project-decimal {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: $jd-text-color;
+  position: relative;
+}
+
+.project-decimal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 50%;
+  bottom: 0;
+  background-color: $jd-area-color;
+  z-index: -1;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.project-decimal::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  right: 0;
+  bottom: 0;
+  background-color: $jd-category-color;
+  z-index: -1;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.project-category-name {
+  margin-left: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: $jd-text-color;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .jd-header {
+    flex-direction: column;
+  }
+
+  .jd-header-left {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .project-decimal-container {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .jd-notation,
+  .jd-header-notation,
+  .project-decimal {
+    font-size: 1rem;
+  }
+
+  .jd-name,
+  .project-category-name {
+    font-size: 0.9rem;
+  }
+}

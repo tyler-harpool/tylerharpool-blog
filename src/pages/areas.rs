@@ -1,11 +1,13 @@
 use leptos::prelude::*;
 use leptos_meta::Title;
 use crate::model::{JDArea, JDCategory};
+use crate::components::{JohnnyDecimalRange, CategoryBadge};
 
 #[component]
 pub fn AreasPage() -> impl IntoView {
     let areas_signal = use_context::<ReadSignal<Vec<JDArea>>>()
         .expect("Areas context not found!");
+
     // Get the categories context
     let categories_signal = use_context::<ReadSignal<Vec<JDCategory>>>()
         .expect("Categories context not found!");
@@ -26,17 +28,18 @@ pub fn AreasPage() -> impl IntoView {
                         .cloned()
                         .collect::<Vec<_>>();
 
+                    // Get range
+                    let start = area.id.to_string();
+                    let end = (area.id + 9).to_string();
+
                     view! {
                         <div class="jd-area-card">
                             <div class="jd-area-header">
-                                <div class="jd-area-label">
-                                    <span class="jd-area-range">{format!("{}-{}", area.id, area.id + 9)}</span>
-                                </div>
-                                <div class="jd-area-title-container">
-                                    <a href={format!("/areas/{}", area.id)} class="jd-area-title">
-                                        {area.name.clone()}
-                                    </a>
-                                </div>
+                                <JohnnyDecimalRange
+                                    start=start
+                                    end=end
+                                    name=area.name.clone()
+                                />
                             </div>
 
                             <div class="jd-area-description">
@@ -45,10 +48,12 @@ pub fn AreasPage() -> impl IntoView {
 
                             <div class="jd-categories-list">
                                 {area_categories.into_iter().map(|category| {
+                                    let category_id = category.id.to_string();
+
                                     view! {
                                         <div class="jd-category-row">
                                             <a href={format!("/categories/{}", category.id)} class="jd-category-link">
-                                                <span class="jd-category-number">{category.id}</span>
+                                                <CategoryBadge id=category_id />
                                                 <span class="jd-category-name">{category.name}</span>
                                             </a>
                                         </div>

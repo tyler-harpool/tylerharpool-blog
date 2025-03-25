@@ -1,3 +1,6 @@
+
+@import 'johnny_decimal';
+
 :root {
   --primary-color: #3498db;
   --primary-color-dark: #2077b2;
@@ -1531,83 +1534,447 @@ header nav a {
 .area-id-badge {
     display: none;
 }
-.markdown {
-  /* Base text styling */
-  line-height: 1.6;
+/* Project Detail Page Enhanced Styling */
+.project-detail {
+  background-color: transparent; /* Make container transparent */
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin-top: 1.5rem;
+}
 
-  /* Headings */
-  h1, h2, h3, h4, h5, h6 {
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
-    font-weight: 600;
+/* Flat header section */
+.project-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1.5rem;
+  background-color: transparent;
+}
+
+.project-title {
+  font-size: 2.5rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--dark-color);
+  line-height: 1.2;
+}
+
+.project-meta {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+/* Flat JD info styling */
+.project-jd-info {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: transparent;
+}
+
+.project-breadcrumbs {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.project-decimal-container {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0.5rem 0;
+  box-shadow: none;
+  border-bottom: 1px solid #eee;
+}
+
+.project-decimal {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: 1rem;
+}
+
+.project-category-label {
+  display: flex;
+  align-items: center;
+}
+
+.project-category-id {
+  background-color: var(--accent-color);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin-right: 8px;
+}
+
+.project-category-name {
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+/* Project summary - slightly lifted with box lines */
+.project-summary {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.project-summary p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* Tech stack - flat design */
+.tech-stack {
+  margin: 2rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.tech-stack h3 {
+  font-size: 1.2rem;
+  color: var(--dark-color);
+  margin-bottom: 1rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.tag {
+  background-color: transparent;
+  color: var(--text-color);
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: none;
+}
+
+/* Project links with flat styling */
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+/* Markdown content - slightly lifted */
+.project-content.markdown {
+  margin: 2rem 0;
+  padding: 2rem;
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  color: var(--text-color);
+  line-height: 1.8;
+}
+
+.project-content.markdown h1 {
+  font-size: 1.8rem;
+  color: var(--dark-color);
+  margin: 1.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.project-content.markdown h2 {
+  font-size: 1.5rem;
+  color: var(--dark-color);
+  margin: 1.5rem 0 1rem;
+}
+
+.project-content.markdown h1:first-child,
+.project-content.markdown h2:first-child {
+  margin-top: 0;
+}
+
+/* Related projects - slightly lifted */
+.related-projects {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.related-projects h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: var(--dark-color);
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.75rem;
+}
+
+/* Navigation links - flat styling */
+.navigation-links {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+.btn-back {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid #e2e8f0;
+}
+
+.btn-back:hover {
+  background-color: #f5f7fa;
+  border-color: #d1d9e6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .project-summary,
+  .project-content.markdown,
+  .related-projects {
+    padding: 1.25rem;
   }
 
-  /* Paragraph spacing */
-  p {
-    margin-bottom: 1em;
+  .project-links {
+    flex-direction: column;
   }
 
-  /* Lists */
-  ul, ol {
-    margin-bottom: 1em;
-    padding-left: 2em;
-  }
-
-  /* Code blocks */
-  pre {
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    padding: 1em;
-    overflow-x: auto;
-    margin-bottom: 1em;
-  }
-
-  code {
-    background-color: #f5f5f5;
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
-    font-family: monospace;
-  }
-
-  /* Block quotes */
-  blockquote {
-    border-left: 4px solid #ddd;
-    padding-left: 1em;
-    color: #666;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  /* Tables */
-  table {
-    border-collapse: collapse;
+  .btn {
     width: 100%;
-    margin-bottom: 1em;
+  }
+}
+
+/* Markdown content enhancements */
+.project-content.markdown {
+  margin: 2rem 0;
+  color: var(--text-color);
+  line-height: 1.8;
+}
+
+.project-content.markdown h1 {
+  font-size: 1.8rem;
+  color: var(--dark-color);
+  margin: 1.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.project-content.markdown h2 {
+  font-size: 1.5rem;
+  color: var(--dark-color);
+  margin: 1.5rem 0 1rem;
+}
+
+.project-content.markdown ul li,
+.project-content.markdown ol li {
+  margin-bottom: 0.5rem;
+}
+
+/* Navigation links with cleaner styling */
+.navigation-links {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.btn-back {
+  background-color: #f5f7fa;
+  color: var(--text-color);
+  border: 1px solid #e2e8f0;
+  box-shadow: none; /* Remove shadow */
+}
+
+.btn-back:hover {
+  background-color: #e9ecef;
+  border-color: #d1d9e6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .project-detail {
+    padding: 1.5rem;
   }
 
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+  .project-decimal-container {
+    flex-direction: row; /* Keep horizontal on mobile */
+    align-items: center;
   }
 
-  th {
-    background-color: #f5f5f5;
-    text-align: left;
+  .project-links {
+    flex-direction: column;
   }
 
-  /* Images */
-  img {
-    max-width: 100%;
-    height: auto;
-    margin: 1em 0;
+  .btn {
+    width: 100%;
+  }
+}
+// Johnny Decimal overlapping circles styling
+.project-decimal-container {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--dark-color);
+  border-radius: var(--border-radius);
+  margin-bottom: 1.25rem;
+}
+
+.decimal-circles {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-right: 1.25rem;
+  width: 80px;
+  height: 40px;
+}
+
+.area-circle {
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 0;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.category-circle {
+  width: 34px;
+  height: 34px;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.decimal-point {
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.area-number {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 17px;
+  color: white;
+}
+
+.category-number {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 14px;
+  color: white;
+}
+
+.project-category-name {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .decimal-circles {
+    margin-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-decimal-container {
+    padding: 0.6rem 0.8rem;
   }
 
-  /* Task lists */
-  .task-list-item {
-    list-style-type: none;
+  .decimal-circles {
+    width: 70px;
   }
 
-  .task-list-item-checkbox {
-    margin-right: 0.5em;
+  .area-circle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .category-circle {
+    width: 30px;
+    height: 30px;
+  }
+
+  .area-number {
+    font-size: 15px;
+  }
+
+  .category-number {
+    font-size: 13px;
   }
 }
