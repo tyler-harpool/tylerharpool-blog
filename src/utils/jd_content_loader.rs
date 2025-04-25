@@ -313,7 +313,7 @@ fn parse_front_matter(content: &str) -> Option<(FrontMatter, String)> {
 }
 
 // Convert markdown files to Projects with Johnny Decimal metadata
-pub fn markdown_to_projects(root_dir: &str, _areas: &[JDArea], categories: &[JDCategory]) -> Vec<Project> {
+pub fn markdown_to_projects(root_dir: &str, areas: &[JDArea], categories: &[JDCategory]) -> Vec<Project> {
     let md_files = load_markdown_files(root_dir);
 
     md_files
@@ -378,6 +378,14 @@ pub fn markdown_to_projects(root_dir: &str, _areas: &[JDArea], categories: &[JDC
             } else {
                 None
             };
+
+            // Log what's happening for better debugging
+            leptos::logging::log!(
+                "Processing file: {}, Category: {:?}, JD Identifier: {}",
+                path.display(),
+                category.as_ref().map(|c| &c.name),
+                jd_identifier
+            );
 
             // Create project title
             let display_title = front_matter.title.clone();

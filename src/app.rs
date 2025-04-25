@@ -4,6 +4,7 @@ use leptos_router::{
     components::{Route, Router, Routes},
     StaticSegment, path,
 };
+use leptos::logging::log;
 use crate::utils::jd_content_loader::markdown_to_projects;
 
 // Import our page components
@@ -45,8 +46,12 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 
 // Replace the create_mock_projects function with:
 fn load_projects() -> Vec<Project> {
+    // Get areas and categories using our dynamic functions
     let areas = get_all_areas();
     let categories = get_all_categories();
+
+    // Log what we found
+    log!("Loaded {} areas and {} categories", areas.len(), categories.len());
 
     let mut projects = markdown_to_projects("content/blog", &areas, &categories);
 
@@ -55,6 +60,7 @@ fn load_projects() -> Vec<Project> {
         project.id = Some((i + 1) as i64);
     }
 
+    log!("Loaded {} projects", projects.len());
     projects
 }
 
