@@ -46,44 +46,65 @@ pub fn ProjectSearch(projects: Vec<Project>) -> impl IntoView {
             />
 
             <div class="search-results">
-                {move || filtered_projects().into_iter().map(|project| {
-                    let formatted_date = format_date(project.created_at);
-                    let decimal_id = project.jd_category.as_ref().map_or("".to_string(), |cat| {
-                        format!("{}.{}", cat.id, project.id.unwrap_or(0))
-                    });
+            {move || filtered_projects().into_iter().map(|project| {
+                let formatted_date = format_date(project.created_at);
+                // Use the pre-extracted JD identifier
+                let decimal_id = if !project.jd_identifier.is_empty() {
+                    project.jd_identifier.clone()
+                } else {
+                    project.jd_category.as_ref().map_or("".to_string(), |cat| {
+                        format!("{}", cat.id)
+                    })
+                };
 
-                    view! {
-                        <div class="search-result-item">
-                            <div class="result-header">
-                                {project.jd_category.as_ref().map(|_| view! {
-                                    <div class="result-decimal-container">
-                                        <span class="result-decimal">{decimal_id}</span>
-                                    </div>
+                view! {
+                    <div class="search-result-item">
+                        <div class="result-header">
+                            {(!decimal_id.is_empty()).then(|| view! {
+                                <div class="result-decimal-container">
+                                    <span class="result-decimal">{decimal_id}</span>
+                                </div>
+                            })}
+
+                            <div class="result-title-container">
+                                <a href={format!("/projects/{}", project.slug)} class="result-title">
+                                    {project.title}
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="result-content">
+                            <p class="result-summary">
+                                {project.summary.clone()}
+                            </p>
+                            <div class="result-meta">
+                                <span class="result-date">{formatted_date}</span>
+
+                                {project.jd_category.as_ref().map(|cat| {
+                                    view! {
+                                        <div class="jd-info">
+                                            <a href={format!("/areas/{}", cat.area_id)} class="jd-area-badge">
+                                                {format!("{}-{}", cat.area_id, cat.area_id + 9)}
+                                            </a>
+                                            <a href={format!("/categories/{}", cat.id)} class="jd-category-badge">
+                                                {cat.id}
+                                            </a>
+                                        </div>
+                                    }
                                 })}
 
-                                <div class="result-title-container">
-                                    <a href={format!("/projects/{}", project.slug)} class="result-title">
-                                        {project.title}
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="result-content">
-                                <p class="result-summary">{project.summary.clone()}</p>
-                                <div class="result-meta">
-                                    <span class="result-date">{formatted_date}</span>
-                                    <div class="result-tags">
-                                        {project.tech_stack.iter().map(|tech| {
-                                            view! {
-                                                <span class="result-tag">{tech.clone()}</span>
-                                            }
-                                        }).collect::<Vec<_>>()}
-                                    </div>
+                                <div class="result-tags">
+                                    {project.tech_stack.iter().map(|tech| {
+                                        view! {
+                                            <span class="result-tag">{tech.clone()}</span>
+                                        }
+                                    }).collect::<Vec<_>>()}
                                 </div>
                             </div>
                         </div>
-                    }
-                }).collect::<Vec<_>>()}
+                    </div>
+                }
+            }).collect::<Vec<_>>()}
             </div>
         </div>
     }

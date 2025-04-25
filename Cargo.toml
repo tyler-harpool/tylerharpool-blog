@@ -18,6 +18,10 @@ wasm-bindgen = { version = "=0.2.100", optional = true }
 serde = "1.0.219"
 serde_json = "1.0.134"
 sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "sqlite"], optional = true  }
+regex = "1.10.2"
+pulldown-cmark = "0.9.3"
+chrono = "0.4.34"
+
 [features]
 hydrate = [
     "leptos/hydrate",

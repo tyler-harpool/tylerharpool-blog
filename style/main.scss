@@ -1531,3 +1531,54 @@ header nav a {
 .area-id-badge {
     display: none;
 }
+
+
+/* Add to your CSS file */
+.jd-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.jd-area-badge, .jd-category-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.jd-area-badge {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.jd-area-badge:hover {
+    background-color: var(--primary-color-dark);
+    text-decoration: none;
+}
+
+.jd-category-badge {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.jd-category-badge:hover {
+    background-color: #c0392b;
+    text-decoration: none;
+}
+.empty-search-results {
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 20px;
+    color: #6c757d;
+    font-style: italic;
+}

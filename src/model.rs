@@ -13,10 +13,13 @@ pub struct Project {
     pub live_url: Option<String>,
     pub thumbnail: Option<String>,
     pub created_at: SystemTime,
-    pub updated_at: SystemTime,  // Currently not used in UI, kept for future database integration
-    pub jd_category: Option<JDCategory>, // Johnny Decimal category
-}
+    pub updated_at: SystemTime,
+    pub jd_category: Option<JDCategory>,
 
+    // New fields
+    pub original_path: String,  // Store the original file path
+    pub jd_identifier: String,  // Store the Johnny Decimal ID (e.g., "21.01")
+}
 
 // Johnny Decimal System structures
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
