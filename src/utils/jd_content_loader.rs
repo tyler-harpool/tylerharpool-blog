@@ -128,16 +128,19 @@ fn process_directory(dir: &Path, results: &mut Vec<(PathBuf, FrontMatter, String
         for entry in entries.flatten() {
             let path = entry.path();
 
-            if path.is_dir() {
-                process_directory(&path, results);
-            } else if path.is_file() && path.extension().map_or(false, |ext| ext == "md") {
-                // Skip template files and index.md
+            // Skip README.md files and other unwanted files
+            if path.is_file() {
                 if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
-                    if file_name.contains("Template") || file_name == "index.md" {
+                    // Skip README.md files and template files
+                    if file_name == "README.md" || file_name.contains("Template") || file_name == "index.md" {
                         continue;
                     }
                 }
+            }
 
+            if path.is_dir() {
+                process_directory(&path, results);
+            } else if path.is_file() && path.extension().map_or(false, |ext| ext == "md") {
                 if let Ok(content) = fs::read_to_string(&path) {
                     let (front_matter, processed_content) = match parse_front_matter(&content) {
                         Some((fm, content)) => (fm, content),
@@ -165,6 +168,7 @@ fn process_directory(dir: &Path, results: &mut Vec<(PathBuf, FrontMatter, String
         }
     }
 }
+
 
 // Extract title and first paragraph for summary
 fn extract_title_and_summary(content: &str) -> (String, String) {
