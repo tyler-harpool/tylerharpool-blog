@@ -1,5 +1,5 @@
 # Use a nightly Rust cargo-chef
-FROM lukemathwalker/cargo-chef:nightly-2024-04-01 AS chef
+FROM lukemathwalker/cargo-chef:nightly AS chef
 WORKDIR /app
 
 FROM chef AS planner
