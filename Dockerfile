@@ -36,4 +36,4 @@ ENV LEPTOS_SITE_ROOT="site"
 EXPOSE 8080
 
 
-ENTRYPOINT ["/app/tylerharpool-blog"]
+CMD ["/app/tylerharpool-blog"]
