@@ -1,5 +1,6 @@
 # syntax = docker/dockerfile:1.4
 FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+WORKDIR /app
 # Leverage Docker's cache mount for Rust builds
 # Copy early to maximize cache usage
 COPY rust-toolchain.toml .
