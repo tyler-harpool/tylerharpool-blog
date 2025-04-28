@@ -1,13 +1,13 @@
-# fly.toml app configuration file generated for tylerharpool-blog on 2025-04-28T15:24:17-05:00
+# fly.toml app configuration file generated for tylerharpool-autumn-cloud-1265 on 2025-04-28T16:01:03-05:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = 'tylerharpool'
 primary_region = 'dfw'
-kill_signal = "SIGTERM"
-kill_timeout = 120
+kill_signal = 'SIGTERM'`
 
+[build]
 
 [http_service]
   internal_port = 8080
