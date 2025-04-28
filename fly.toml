@@ -5,8 +5,9 @@
 
 app = 'tylerharpool'
 primary_region = 'dfw'
+kill_signal = "SIGTERM"
+kill_timeout = 120
 
-[build]
 
 [http_service]
   internal_port = 8080
@@ -14,7 +15,7 @@ primary_region = 'dfw'
   auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  processes = ['tylerharpool']
+  processes = ['app']
 
 [[vm]]
   memory = '1gb'
