@@ -1,22 +1,24 @@
 # syntax=docker/dockerfile:1.4
 FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
 WORKDIR /app
-
-COPY rust-toolchain.toml .
-COPY Cargo.toml Cargo.lock ./
+COPY rust-toolchain.toml Cargo.toml Cargo.lock ./
 
 FROM chef AS planner
-RUN cargo chef prepare --recipe-path recipe.json
+# ← notice the --bin flag here:
+RUN cargo chef prepare --recipe-path recipe.json --bin tylerharpool-blog
 
 FROM chef AS builder
 WORKDIR /app
 COPY --from=planner /app/recipe.json ./recipe.json
 
-# cache only your crates
+# cache & compile deps
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo chef cook --recipe-path recipe.json
 
+# copy your source
 COPY . .
+
+# build your binary
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo build --release --bin tylerharpool-blog
 
