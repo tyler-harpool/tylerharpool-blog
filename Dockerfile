@@ -4,7 +4,10 @@ WORKDIR /app
 COPY rust-toolchain.toml Cargo.toml Cargo.lock ./
 
 FROM chef AS planner
-# ← notice the --bin flag here:
+COPY rust-toolchain.toml .
+COPY Cargo.toml Cargo.lock ./
+COPY src/lib.rs src/lib.rs
+COPY src/main.rs src/main.rs
 RUN cargo chef prepare --recipe-path recipe.json --bin tylerharpool-blog
 
 FROM chef AS builder
