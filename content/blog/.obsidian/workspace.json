@@ -1,0 +1,206 @@
+{
+  "main": {
+    "id": "8e459b84d7bad62d",
+    "type": "split",
+    "children": [
+      {
+        "id": "5830885479282573",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9e8a03db530f86e5",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "08f5bf36a65605a6",
+    "type": "split",
+    "children": [
+      {
+        "id": "eb48dfa1b38b4429",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "134cbfbd5668269d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "1caaf182be5a69b3",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "a6a7e6dd30856852",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "1c6a3ffa7b083235",
+    "type": "split",
+    "children": [
+      {
+        "id": "61286eff02412077",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bd707c101dfdd551",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "30-39 - Digital Side Projects/37 Technical Documentation/01 - Conference Talk Names.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 01 - Conference Talk Names"
+            }
+          },
+          {
+            "id": "7a34c0c0844fae81",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "30-39 - Digital Side Projects/37 Technical Documentation/01 - Conference Talk Names.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 01 - Conference Talk Names"
+            }
+          },
+          {
+            "id": "c7a7c9e8f5ea0670",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "ae9da07874fc3eaf",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "30-39 - Digital Side Projects/37 Technical Documentation/01 - Conference Talk Names.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 01 - Conference Talk Names"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "134cbfbd5668269d",
+  "lastOpenFiles": [
+    "10-19 - Technology & Development/11 Programming Languages/README.md",
+    "10-19 - Technology & Development/README.md",
+    "50-59 - Industry Insights/53 Career Development/53.01 Building a Tech Career.md",
+    "50-59 - Industry Insights/52 Tech Trends/52.01 Tech Trends 2025.md",
+    "50-59 - Industry Insights/51 Case Studies/51.01 Case Studies in Tech.md",
+    "40-49 - Data & Analytics/43 Big Data/43.01 Big Data Analytics.md",
+    "40-49 - Data & Analytics/42 Machine Learning/42.01 Machine Learning Basics.md",
+    "40-49 - Data & Analytics/41 Data Science/41.01 Introduction to Data Science.md",
+    "30-39 - Government & Policy/33 Open Government/33.01 Open Government & Transparency.md",
+    "30-39 - Government & Policy/32 Digital Policy/32.01 Tech Policy & Regulation.md",
+    "30-39 - Government & Policy/31 GovTech Initiatives/31.01 GovTech 101.md",
+    "20-29 - Digital Infrastructure/23 Containerization/23.01 Mastering Docker: Beyond the Basics.md",
+    "20-29 - Digital Infrastructure/22 DevOps/22.01 ArgoCD for Continuous Delivery.md",
+    "20-29 - Digital Infrastructure/21 Cloud Platforms/21.01 Google Cloud Platform: Getting Started.md",
+    "10-19 - Technology & Development/14 WebAssembly/14.01 Introduction to WebAssembly.md",
+    "10-19 - Technology & Development/13 Software Architecture/13.01 Software Design Principles.md",
+    "10-19 - Technology & Development/12 Web Frameworks/12.01 Building Web Apps with Leptos.md",
+    "10-19 - Technology & Development/11 Programming Languages/11.01 Introduction to Rust.md",
+    "50-59 - Industry Insights/53 Career Development",
+    "50-59 - Industry Insights/52 Tech Trends",
+    "50-59 - Industry Insights/51 Case Studies",
+    "50-59 - Industry Insights",
+    "40-49 - Data & Analytics/43 Big Data",
+    "40-49 - Data & Analytics/42 Machine Learning",
+    "40-49 - Data & Analytics/41 Data Science",
+    "40-49 - Data & Analytics",
+    "30-39 - Government & Policy/33 Open Government",
+    "30-39 - Government & Policy/32 Digital Policy",
+    "20-29 - Digital Infrastructure/23 Containerization/23.01 Introduction to Docker.md",
+    "20-29 - Digital Infrastructure/21 Cloud Platforms/21.01 Getting Started with AWS.md",
+    "30-39 - Digital Side Projects/37 Technical Documentation/01 - Conference Talk Names.md",
+    "20-29 - Work/21 Active Projects/21.01 ENS Project/Vault.md",
+    "index.md",
+    "00-09 - Meta/03 Templates/Obsidian Templates/Weekly_Review_Template.md",
+    "00-09 - Meta/03 Templates/Obsidian Templates.md",
+    "00-09 - Meta/03 Templates/Obsidian Templates/Project_Template.md"
+  ]
+}

@@ -15,12 +15,12 @@ leptos_axum = { version = "0.7.0", optional = true }
 leptos_meta = { version = "0.7.0" }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
 wasm-bindgen = { version = "=0.2.100", optional = true }
-serde = { version = "1.0", features = ["derive"] }
+serde = "1.0.219"
 serde_json = "1.0.134"
-sqlx = { version = "0.7", features = ["chrono", "runtime-tokio-native-tls", "sqlite", "migrate"], optional = true  }
-chrono = { version = "0.4", features = ["serde"] }
-pulldown-cmark = { version = "0.13.0", default-features = false }
-
+sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "sqlite"], optional = true  }
+regex = "1.10.2"
+pulldown-cmark = "0.9.3"
+chrono = "0.4.34"
 
 [features]
 hydrate = [
