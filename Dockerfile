@@ -3,15 +3,15 @@ WORKDIR /app
 
 FROM chef AS planner
 COPY . .
-RUN cargo chef prepare --recipe-path recipe.json
+RUN cargo +nightly-2025-04-15 chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --recipe-path recipe.json
+RUN cargo +nightly-2025-04-15 chef cook --recipe-path recipe.json
 # Build application
 COPY . .
-RUN cargo build --release --bin tylerharpool-blog
+RUN cargo +nightly-2025-04-15 build --release --bin tylerharpool-blog
 
 # We do not need the Rust toolchain to run the binary!
 FROM debian:bookworm-slim AS runtime
