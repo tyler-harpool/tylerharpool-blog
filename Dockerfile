@@ -36,4 +36,4 @@ ENV LEPTOS_SITE_ROOT="site"
 EXPOSE 8080
 
 
-ENTRYPOINT ["/usr/local/bin/tylerharpool-blog"]
+ENTRYPOINT ["/app/tylerharpool-blog"]
