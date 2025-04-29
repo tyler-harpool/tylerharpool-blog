@@ -31,7 +31,7 @@ COPY --from=builder /app/target/release/tylerharpool-blog  /app/
 COPY --from=builder /app/content/blog /app/content/blog
 
 ENV RUST_LOG="info"
-ENV LEPTOS_SITE_ADDR="0.0.0.0:3000"
+ENV LEPTOS_SITE_ADDR="0.0.0.0:8080"
 
 EXPOSE 8080
 
