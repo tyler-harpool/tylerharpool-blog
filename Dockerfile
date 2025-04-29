@@ -13,34 +13,50 @@ RUN cargo binstall cargo-leptos -y
 # Add the WASM target
 RUN rustup target add wasm32-unknown-unknown
 
-# Install Dart SASS
-RUN apt-get update && apt-get install -y wget
-RUN wget https://github.com/sass/dart-sass/releases/download/1.60.0/dart-sass-1.60.0-linux-x64.tar.gz
-RUN tar -xvf dart-sass-1.60.0-linux-x64.tar.gz
-RUN cp -r dart-sass/* /usr/local/bin/
-RUN sass --version
-
 # Make an /app dir, which everything will eventually live in
 RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 
-# Build the app
+# FROM bufbuild/buf AS buf
+FROM dart:stable AS dart_sass
+
+# Install Git (needed to clone the repo)
+RUN apt-get update && apt-get install -y git
+
+# Clone and setup dart-sass
+WORKDIR /dart-sass
+RUN git clone https://github.com/sass/dart-sass.git . && \
+    dart pub get && \
+    dart run grinder protobuf
+
+# Copy your app's SCSS files
+COPY style /app/style
+
+# Compile SCSS to CSS
+# Adjust the paths to match your project structure
+RUN dart ./bin/sass.dart /app/style/main.scss /app/style/output.css --style=compressed
+
+# Continue with the builder stage
+FROM builder as final_builder
+
+# Copy the compiled CSS from the dart_sass stage
+COPY --from=dart_sass /app/style/output.css /app/style/output.css
+
+# Build the app (now with compiled CSS)
 RUN cargo leptos build --release -vv
 
+# Runner stage
 FROM rustlang/rust:nightly-bullseye as runner
 
-# -- NB: update binary name from "tylerharpool-blog" to match your app name in Cargo.toml --
 # Copy the server binary to the /app directory
-COPY --from=builder /app/target/release/tylerharpool-blog /app/
+COPY --from=final_builder /app/target/release/tylerharpool-blog /app/
 
 # /target/site contains our JS/WASM/CSS, etc.
-COPY --from=builder /app/target/site /app/site
+COPY --from=final_builder /app/target/site /app/site
 # Copy Cargo.toml if it's needed at runtime
-COPY --from=builder /app/Cargo.toml /app/
-COPY --from=builder /app/content/blog /app/content/blog
-
-# RUN touch /app/.env
+COPY --from=final_builder /app/Cargo.toml /app/
+COPY --from=final_builder /app/content/blog /app/content/blog
 
 WORKDIR /app
 
