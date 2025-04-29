@@ -1,60 +1,49 @@
 # ------------ Build Stage ------------
-FROM rustlang/rust:nightly-bullseye as builder
+FROM rustlang/rust:nightly-bullseye AS builder
 
-# Install cargo-leptos
-RUN cargo install --git https://github.com/leptos-rs/cargo-leptos cargo-leptos
+# 1) Install WASM‐std & tools in one go
+RUN rustup component add rust-src \
+ && rustup target add wasm32-unknown-unknown \
+ && cargo install --git https://github.com/leptos-rs/cargo-leptos cargo-leptos \
+ && cargo install wasm-bindgen-cli
 
-# Install wasm target (for Leptos client-side)
-RUN rustup target add wasm32-unknown-unknown
-
-# Set workdir
 WORKDIR /app
 
-# 1. Copy only dependency files first (to leverage Docker cache)
+# 2) Prime the dependency cache
 COPY Cargo.toml Cargo.lock ./
+RUN mkdir src && echo "fn main() {}" > src/main.rs \
+ && cargo build --release || true
 
-# (Optional: If you have a workspace, copy other Cargo.tomls as well)
-
-# 2. Pre-cache dependencies
-RUN mkdir src && echo "fn main() {}" > src/main.rs
-RUN cargo build --release || true
-
-# 3. Now copy the rest of your source code
+# 3) Copy full source and build
 COPY . .
 
-# Set environment variables needed by cargo-leptos
 ENV LEPTOS_BIN_TARGET_TRIPLE="x86_64-unknown-linux-gnu"
 ENV LEPTOS_OUTPUT_NAME="tylerharpool-blog"
 
-# 4. Build full app (server + client)
 RUN cargo leptos build --release
 
 # ------------ Runtime Stage ------------
-FROM debian:bullseye-slim as runner
+FROM debian:bullseye-slim AS runner
 
-# Install minimal runtime dependencies
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
+RUN apt-get update && apt-get install -y ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy compiled assets
-COPY --from=builder /app/public /app/public
-COPY --from=builder /app/content /app/content
-COPY --from=builder /app/target/site /app/site
-COPY --from=builder /app/target/server/x86_64-unknown-linux-gnu/release/tylerharpool-blog /app/tylerharpool-blog
+# 4) Copy only the build artifacts
+COPY --from=builder /app/public  ./public
+COPY --from=builder /app/content ./content
+COPY --from=builder /app/target/site    ./site
+COPY --from=builder /app/target/server/x86_64-unknown-linux-gnu/release/tylerharpool-blog ./tylerharpool-blog
 
-# Set environment variables
-ENV RUST_LOG="info"
-ENV LEPTOS_OUTPUT_NAME="tylerharpool-blog"
-ENV APP_ENVIRONMENT="production"
-ENV LEPTOS_SITE_ADDR="0.0.0.0:3000"
-ENV LEPTOS_SITE_ROOT="site"
+# 5) Env vars for production
+ENV RUST_LOG="info" \
+    LEPTOS_OUTPUT_NAME="tylerharpool-blog" \
+    APP_ENVIRONMENT="production" \
+    LEPTOS_SITE_ADDR="0.0.0.0:3000" \
+    LEPTOS_SITE_ROOT="site"
 
-# Expose the application port
 EXPOSE 3000
 
-# Start the server binary
-CMD ["/app/tylerharpool-blog"]
+CMD ["./tylerharpool-blog"]
+`
