@@ -1,39 +1,38 @@
 # Get started with a build env with Rust nightly
 FROM rustlang/rust:nightly-bullseye as builder
 
-# Install cargo-binstall for easier cargo extensions installation
-RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz && \
-    tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz && \
-    cp cargo-binstall /usr/local/cargo/bin
+# Install cargo-binstall, which makes it easier to install other
+# cargo extensions like cargo-leptos
+RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
+RUN tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz
+RUN cp cargo-binstall /usr/local/cargo/bin
 
-# Install cargo-leptos and add WASM target
-RUN cargo binstall cargo-leptos -y && \
-    rustup target add wasm32-unknown-unknown
+# Install cargo-leptos
+RUN cargo binstall cargo-leptos -y
 
-# Install pre-built Dart SASS
-RUN apt-get update && apt-get install -y wget && \
-    wget https://github.com/sass/dart-sass/releases/download/1.63.6/dart-sass-1.63.6-linux-x64.tar.gz && \
-    tar -xvf dart-sass-1.63.6-linux-x64.tar.gz && \
-    cp -r dart-sass/* /usr/local/bin/ && \
-    rm -rf dart-sass dart-sass-1.63.6-linux-x64.tar.gz && \
-    sass --version
+# Add the WASM target
+RUN rustup target add wasm32-unknown-unknown
+
+# Install Node.js and NPM for SASS processing
+RUN apt-get update && apt-get install -y nodejs npm
+RUN npm install -g sass
 
 # Make an /app dir, which everything will eventually live in
 RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 
-# Compile SCSS to CSS (adjust paths to match your project structure)
-RUN if [ -d "style" ]; then \
-      sass style/main.scss:style/output.css --style=compressed; \
+# Process SASS files if they exist (before building the app)
+RUN if [ -d "style" ] && [ -f "style/main.scss" ]; then \
+      sass style/main.scss style/output.css --style=compressed; \
     fi
 
 # Build the app
 RUN cargo leptos build --release -vv
 
-# Runner stage
 FROM rustlang/rust:nightly-bullseye as runner
 
+# -- NB: update binary name from "tylerharpool-blog" to match your app name in Cargo.toml --
 # Copy the server binary to the /app directory
 COPY --from=builder /app/target/release/tylerharpool-blog /app/
 
@@ -41,12 +40,13 @@ COPY --from=builder /app/target/release/tylerharpool-blog /app/
 COPY --from=builder /app/target/site /app/site
 # Copy Cargo.toml if it's needed at runtime
 COPY --from=builder /app/Cargo.toml /app/
-# Copy content folder
 COPY --from=builder /app/content/blog /app/content/blog
+
+# RUN touch /app/.env
 
 WORKDIR /app
 
-# Set any required env variables
+# Set any required env variables and
 ENV RUST_LOG="info"
 ENV LEPTOS_SITE_ADDR="0.0.0.0:8080"
 ENV LEPTOS_SITE_ROOT="site"
