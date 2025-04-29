@@ -33,6 +33,7 @@ RUN cargo chef cook --release --all-features --recipe-path recipe.json
 COPY . .
 
 # Build the app
+RUN rustup target add wasm32-unknown-unknown
 RUN cargo leptos build --release
 
 FROM rustlang/rust:nightly-bullseye as runner
