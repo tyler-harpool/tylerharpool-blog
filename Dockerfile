@@ -30,6 +30,7 @@ WORKDIR /app
 COPY --from=builder /work/target/release/tylerharpool-blog /app/
 COPY --from=builder /work/target/site /app/site
 COPY --from=builder /work/Cargo.toml /app/
+COPY --from=builder /work/content/blog /app/content/blog
 
 ENV RUST_LOG="info"
 ENV LEPTOS_SITE_ADDR="0.0.0.0:8080"
