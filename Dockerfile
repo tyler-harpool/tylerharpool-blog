@@ -13,9 +13,12 @@ RUN cargo binstall cargo-leptos -y
 # Add the WASM target
 RUN rustup target add wasm32-unknown-unknown
 
-# Install Node.js and NPM for SASS processing
-RUN apt-get update && apt-get install -y nodejs npm
-RUN npm install -g sass
+# Install Dart SASS binary (without Node.js)
+RUN apt-get update && apt-get install -y wget
+RUN wget https://github.com/sass/dart-sass/releases/download/1.63.6/dart-sass-1.63.6-linux-x64.tar.gz
+RUN tar -xf dart-sass-1.63.6-linux-x64.tar.gz
+RUN cp -r dart-sass/* /usr/local/bin/
+RUN rm -rf dart-sass dart-sass-1.63.6-linux-x64.tar.gz
 
 # Make an /app dir, which everything will eventually live in
 RUN mkdir -p /app
@@ -24,7 +27,7 @@ COPY . .
 
 # Process SASS files if they exist (before building the app)
 RUN if [ -d "style" ] && [ -f "style/main.scss" ]; then \
-      sass style/main.scss style/output.css --style=compressed; \
+      /usr/local/bin/sass style/main.scss style/output.css --style=compressed --no-source-map; \
     fi
 
 # Build the app
@@ -41,8 +44,6 @@ COPY --from=builder /app/target/site /app/site
 # Copy Cargo.toml if it's needed at runtime
 COPY --from=builder /app/Cargo.toml /app/
 COPY --from=builder /app/content/blog /app/content/blog
-
-# RUN touch /app/.env
 
 WORKDIR /app
 
