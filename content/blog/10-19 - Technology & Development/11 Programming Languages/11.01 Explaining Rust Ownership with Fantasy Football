@@ -5,12 +5,11 @@ category_id: 11
 title: Explaining Rust Ownership with Fantasy Football
 author: Tyler Harpool
 date: 2025-04-29
-summary: An introductory guide to the Rust programming language
+summary: An introductory guide to Rust Ownership.
 tags: [Rust Programming, Programming Languages]
 thumbnail: /images/thumbnails/01-thumbnail.jpg
 draft: false
 related_articles: [
-  "11.02",   # Reference to "Advanced Rust Patterns"
   "12.01",   # Reference to "Building Web Apps with Leptos"
   "13.01"    # Reference to "Software Design Principles"
 ]
