@@ -27,7 +27,7 @@ ENV LEPTOS_BIN_TARGET_TRIPLE="x86_64-unknown-linux-gnu"
 ENV LEPTOS_OUTPUT_NAME="tylerharpool-blog"
 
 # 4. Build full app (server + client)
-RUN cargo leptos build --release --bin tylerharpool-blog --vv
+RUN cargo leptos build --release --vv
 
 # ------------ Runtime Stage ------------
 FROM debian:bullseye-slim as runner
