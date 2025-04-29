@@ -33,7 +33,7 @@ RUN cargo chef cook --release --all-features --recipe-path recipe.json
 COPY . .
 
 # Build the app
-RUN cargo leptos build --release -vv
+RUN cargo leptos build --release
 
 FROM rustlang/rust:nightly-bullseye as runner
 # Copy the server binary to the /app directory
