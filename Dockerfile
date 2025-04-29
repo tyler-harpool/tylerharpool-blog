@@ -1,52 +1,55 @@
-# Get started with a build env with Rust nightly
+# Build stage
 FROM rustlang/rust:nightly-bullseye as builder
 
-# Install Node.js and essential tools for frontend processing
+# Install Node.js and essential tools
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
     gnupg \
     build-essential
 
-# Install Node.js 16 properly
+# Install Node.js 16
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs && \
     node --version && \
     npm --version
 
-# Install cargo-binstall
-RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz && \
-    tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz && \
-    cp cargo-binstall /usr/local/cargo/bin
-
-# Install cargo-leptos
-RUN cargo binstall cargo-leptos -y
+# Install SASS
+RUN npm install -g sass
 
 # Add the WASM target
 RUN rustup target add wasm32-unknown-unknown
 
-# Install SASS
-RUN npm install -g sass
+# Install wasm-bindgen-cli manually
+RUN cargo install wasm-bindgen-cli
 
-# Make an /app dir, which everything will eventually live in
+# Make an /app dir
 RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 
-# Process SASS files if they exist (before building the app)
+# Process SASS files if they exist
 RUN if [ -d "style" ] && [ -f "style/main.scss" ]; then \
       sass style/main.scss style/output.css --style=compressed --no-source-map; \
     fi
 
-# Build the app
-RUN cargo leptos build --release -vv
+# Build the Rust binary
+RUN cargo build --release
 
+# Build the WASM module
+RUN cargo build --lib --target wasm32-unknown-unknown --release
+
+# Process the WASM with wasm-bindgen
+RUN wasm-bindgen --target web --no-typescript --out-dir target/site/pkg \
+    target/wasm32-unknown-unknown/release/tylerharpool_blog.wasm
+
+# Runner stage
 FROM rustlang/rust:nightly-bullseye as runner
 
 # Copy the server binary to the /app directory
 COPY --from=builder /app/target/release/tylerharpool-blog /app/
 
-# /target/site contains our JS/WASM/CSS, etc.
+# Copy the site directory
 COPY --from=builder /app/target/site /app/site
 # Copy Cargo.toml if it's needed at runtime
 COPY --from=builder /app/Cargo.toml /app/
@@ -54,7 +57,7 @@ COPY --from=builder /app/content/blog /app/content/blog
 
 WORKDIR /app
 
-# Set any required env variables and
+# Set any required env variables
 ENV RUST_LOG="info"
 ENV LEPTOS_SITE_ADDR="0.0.0.0:8080"
 ENV LEPTOS_SITE_ROOT="site"
