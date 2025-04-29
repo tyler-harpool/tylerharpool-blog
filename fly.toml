@@ -8,7 +8,6 @@ primary_region = 'dfw'
 
 [build]
   builder = "heroku/buildpacks:20"
-  image = "tylerharpool-blog"
 
 [http_service]
   internal_port = 3000
