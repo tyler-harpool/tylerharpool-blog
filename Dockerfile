@@ -10,20 +10,29 @@ RUN rustup target add wasm32-unknown-unknown
 # Set workdir
 WORKDIR /app
 
-# Copy everything
+# 1. Copy only dependency files first (to leverage Docker cache)
+COPY Cargo.toml Cargo.lock ./
+
+# (Optional: If you have a workspace, copy other Cargo.tomls as well)
+
+# 2. Pre-cache dependencies
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release || true
+
+# 3. Now copy the rest of your source code
 COPY . .
 
 # Set environment variables needed by cargo-leptos
 ENV LEPTOS_BIN_TARGET_TRIPLE="x86_64-unknown-linux-gnu"
 ENV LEPTOS_OUTPUT_NAME="tylerharpool-blog"
 
-# Build app (server + client)
+# 4. Build full app (server + client)
 RUN cargo leptos build --release --bin tylerharpool-blog --vv
 
 # ------------ Runtime Stage ------------
 FROM debian:bullseye-slim as runner
 
-# Install minimal dependencies
+# Install minimal runtime dependencies
 RUN apt-get update && apt-get install -y \
     ca-certificates \
  && rm -rf /var/lib/apt/lists/*
