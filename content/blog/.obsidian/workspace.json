@@ -11,10 +11,12 @@
             "id": "9e8a03db530f86e5",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "New tab"
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.8.10"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.8.10"
             }
           }
         ]
@@ -164,7 +166,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "134cbfbd5668269d",
+  "active": "9e8a03db530f86e5",
   "lastOpenFiles": [
     "10-19 - Technology & Development/11 Programming Languages/README.md",
     "10-19 - Technology & Development/README.md",
