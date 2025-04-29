@@ -13,7 +13,7 @@ ENV LEPTOS_BIN_TARGET_TRIPLE="x86_64-unknown-linux-gnu"
 RUN cargo leptos --manifest-path=./Cargo.toml build --release -vv
 
 FROM rustlang/rust:nightly-bullseye as runner
-COPY --from=builder /app/posts /app/posts
+COPY --from=builder /app/content /app/content
 COPY --from=builder /app/public /app/public
 
 COPY --from=builder /app/target/server/x86_64-unknown-linux-gnu/release/tylerharpool-blog /app/
