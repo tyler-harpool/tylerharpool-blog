@@ -1,39 +1,39 @@
-# syntax=docker/dockerfile:1.4
-FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
-WORKDIR /app
-COPY rust-toolchain.toml Cargo.toml Cargo.lock ./
+# Get started with a build env with Rust nightly
+FROM rustlang/rust:nightly-alpine AS builder
 
-FROM chef AS planner
-COPY rust-toolchain.toml .
-COPY Cargo.toml Cargo.lock ./
-COPY src/lib.rs src/lib.rs
-COPY src/main.rs src/main.rs
-RUN cargo chef prepare --recipe-path recipe.json --bin tylerharpool-blog
+RUN apk update && \
+    apk add --no-cache bash curl npm libc-dev binaryen
 
-FROM chef AS builder
-WORKDIR /app
-COPY --from=planner /app/recipe.json ./recipe.json
+RUN npm install -g sass
 
-# cache & compile deps
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    cargo chef cook --recipe-path recipe.json
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/leptos-rs/cargo-leptos/releases/latest/download/cargo-leptos-installer.sh | sh
 
-# copy your source
+# Add the WASM target
+RUN rustup target add wasm32-unknown-unknown
+
+WORKDIR /work
 COPY . .
 
-# build your binary
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    cargo build --release --bin tylerharpool-blog
+RUN cargo leptos build --release -vv
 
-FROM debian:bookworm-slim AS runtime
+FROM rustlang/rust:nightly-alpine AS runner
+RUN apk update && \
+    apk add --no-cache \
+    chromium \
+    ttf-freefont \
+    udev \
+    font-noto-emoji\
+    tslib
+
 WORKDIR /app
-COPY --from=builder /app/target/release/tylerharpool-blog  /app/
-COPY --from=builder /app/content/blog /app/content/blog
+
+COPY --from=builder /work/target/release/tylerharpool-blog /app/
+COPY --from=builder /work/target/site /app/site
+COPY --from=builder /work/Cargo.toml /app/
 
 ENV RUST_LOG="info"
 ENV LEPTOS_SITE_ADDR="0.0.0.0:8080"
-
+ENV LEPTOS_SITE_ROOT=./site
 EXPOSE 8080
-
 
 CMD ["/app/tylerharpool-blog"]
