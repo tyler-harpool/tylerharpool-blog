@@ -46,4 +46,3 @@ ENV RUST_LOG="info" \
 EXPOSE 3000
 
 CMD ["./tylerharpool-blog"]
-`
