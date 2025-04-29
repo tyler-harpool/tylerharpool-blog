@@ -13,6 +13,13 @@ RUN cargo binstall cargo-leptos -y
 # Add the WASM target
 RUN rustup target add wasm32-unknown-unknown
 
+# Install Dart SASS
+RUN apt-get update && apt-get install -y wget
+RUN wget https://github.com/sass/dart-sass/releases/download/1.60.0/dart-sass-1.60.0-linux-x64.tar.gz
+RUN tar -xvf dart-sass-1.60.0-linux-x64.tar.gz
+RUN cp -r dart-sass/* /usr/local/bin/
+RUN sass --version
+
 # Make an /app dir, which everything will eventually live in
 RUN mkdir -p /app
 WORKDIR /app
@@ -29,7 +36,7 @@ COPY --from=builder /app/target/release/tylerharpool-blog /app/
 
 # /target/site contains our JS/WASM/CSS, etc.
 COPY --from=builder /app/target/site /app/site
-# Copy Cargo.toml if it’s needed at runtime
+# Copy Cargo.toml if it's needed at runtime
 COPY --from=builder /app/Cargo.toml /app/
 COPY --from=builder /app/content/blog /app/content/blog
 

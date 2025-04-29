@@ -363,7 +363,7 @@ pub fn markdown_to_projects(root_dir: &str, areas: &[JDArea], categories: &[JDCa
             // Parse the date if available
             let created_at = front_matter.date
                 .as_ref()
-                .and_then(|date_str| parse_date(date_str))
+                .and_then(|date_str| crate::utils::format::parse_date_string(date_str))
                 .unwrap_or_else(|| SystemTime::now());
 
             // Find category based on the extracted JD info
@@ -437,24 +437,7 @@ fn slug_from_title(title: &str) -> String {
     slug
 }
 
-// Helper to parse date from string (supports multiple formats)
 fn parse_date(date_str: &str) -> Option<SystemTime> {
-    // Try to parse YYYY-MM-DD format
-    let parts: Vec<&str> = date_str.split('-').collect();
-
-    if parts.len() == 3 {
-        if let (Ok(year), Ok(month), Ok(day)) = (
-            parts[0].parse::<u64>(),
-            parts[1].parse::<u64>(),
-            parts[2].parse::<u64>()
-        ) {
-            // Convert to seconds since epoch (simplified)
-            let seconds = (year - 1970) * 31536000 + (month - 1) * 2592000 + (day - 1) * 86400;
-
-            let duration = std::time::Duration::from_secs(seconds);
-            return Some(SystemTime::UNIX_EPOCH + duration);
-        }
-    }
-
-    None
+    // Use the new parsing function from format.rs
+    crate::utils::format::parse_date_string(date_str)
 }

@@ -1,0 +1,5 @@
+@forward 'core/index';
+@forward 'components/index' as components-*;
+@forward 'pages/index' as pages-*;
+@forward 'jd-system/index' as jd-*;
+@forward 'responsive';
