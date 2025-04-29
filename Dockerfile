@@ -18,6 +18,18 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 
+
+# Download and install nvm:
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# in lieu of restarting the shell
+# Download and install Node.js:
+RUN nvm install 22
+# Verify the Node.js version:
+RUN node -v # Should print "v22.15.0".
+RUN nvm current # Should print "v22.15.0".
+# Verify npm version:
+RUN npm -v # Should print "10.9.2".
+
 # Build the app
 RUN cargo leptos build --release -vv
 
