@@ -189,3 +189,52 @@
   color: white;
   border-color: #2980b9;
 }
+
+@media (max-width: 768px) {
+  .result-header {
+    flex-direction: column;
+  }
+
+  .pagination-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.pagination-info {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+
+.tag-filter-banner {
+  background-color: #ebf7ff;
+  border: 1px solid #bde0fe;
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .active-tag {
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+
+  .clear-filter {
+    color: #dc3545;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 3px 8px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #fff0f0;
+    }
+  }
+}
