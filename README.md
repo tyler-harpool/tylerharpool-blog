@@ -1,91 +1,155 @@
-<picture>
-    <source srcset="https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_Solid_White.svg" media="(prefers-color-scheme: dark)">
-    <img src="https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_RGB.svg" alt="Leptos Logo">
-</picture>
+# Eos: A Johnny Decimal Blog System 🌅
 
-# Leptos Axum Starter Template
+A modern, organized personal blog system built with Leptos, Rust, and the Johnny Decimal organizational framework. Named after Eos, the Greek goddess of dawn, bringing light to your thoughts and ideas.
 
-This is a template for use with the [Leptos](https://github.com/leptos-rs/leptos) web framework and the [cargo-leptos](https://github.com/akesson/cargo-leptos) tool using [Axum](https://github.com/tokio-rs/axum).
+![Blog Screenshot](https://example.com/blog-screenshot.png)
 
-## Creating your template repo
+## 🌟 Features
 
-If you don't have `cargo-leptos` installed you can install it with
+- **Blazing Fast Performance**: Server-side rendering with client-side hydration for optimal speed
+- **Johnny Decimal Organization**: Content structured using the [Johnny Decimal system](https://johnnydecimal.com/) for intuitive navigation
+- **Rich Content**: Markdown-based content with YAML frontmatter
+- **Interactive UI**: Islands architecture for efficient interactivity
+- **Related Articles**: Smart content recommendations based on categories and tags
+- **Responsive Design**: Mobile-friendly layout that works on all devices
 
-```bash
-cargo install cargo-leptos --locked
+## 🏗️ Technical Architecture
+
+### Technology Stack
+
+- **Frontend Framework**: [Leptos](https://leptos.dev/) - A Rust-based reactive web framework
+- **Language**: [Rust](https://www.rust-lang.org/) for type-safe, high-performance code
+- **Content Format**: Markdown with YAML frontmatter
+- **Styling**: SCSS for maintainable CSS
+- **Deployment**: Containerized with Docker, deployed on [Fly.io](https://fly.io)
+
+### Code Structure
+
+```
+eos-blog/
+├── Cargo.toml           # Rust dependencies and configuration
+├── src/
+│   ├── app.rs           # Main application component
+│   ├── components/      # Reusable UI components
+│   ├── model.rs         # Data structures and models
+│   ├── pages/           # Page components
+│   └── utils/           # Utility functions and helpers
+├── content/
+│   └── blog/            # Blog content organized by Johnny Decimal
+│       ├── 10-19 - Technology & Development/
+│       ├── 20-29 - Digital Infrastructure/
+│       ├── 30-39 - Government & Policy/
+│       ├── 40-49 - Data & Analytics/
+│       └── 50-59 - Industry Insights/
+└── style/               # SCSS stylesheets
 ```
 
-Then run
-```bash
-cargo leptos new --git https://github.com/leptos-rs/start-axum
+## 📂 Content Organization
+
+The content follows the Johnny Decimal system, organizing articles by area and category:
+- **NUMBER-NUMBER AREA**: CATEGORY
+- **10-19 Technology & Development**: Programming languages, frameworks, technical concepts
+- **20-29 Digital Infrastructure**: Cloud services, DevOps, system architecture
+- **30-39 Government & Policy**: GovTech initiatives, digital policy
+- **40-49 Data & Analytics**: Data science, machine learning, analytics
+- **50-59 Industry Insights**: Trends, case studies, industry analysis
+
+
+## 📝 Creating Content
+
+### Markdown Format
+
+Articles are written in Markdown with YAML frontmatter:
+
+```markdown
+---
+id: 11.01
+area_id: 10
+category_id: 11
+title: Article Title
+author: Tyler Harpool
+date: 2025-04-29
+summary: Brief summary of the article.
+tags: [Tag1, Tag2, Tag3]
+thumbnail: /images/thumbnails/article-thumbnail.jpg
+draft: false
+related_articles: ["12.01", "13.01"]
+---
+
+# Article Title
+
+Article content begins here...
 ```
 
-to generate a new project template.
+### Johnny Decimal IDs
+
+Every article is assigned a Johnny Decimal ID (e.g., `11.01`):
+- First two digits (`11`) represent the category
+- Digits after the decimal point (`01`) represent the specific article
+- Categories are grouped into areas (e.g., categories `10-19` belong to area `10`)
+
+## 🚀 Deployment
+
+The site is containerized using Docker and deployed on Fly.io:
 
 ```bash
-cd tylerharpool-blog
+# Deploy to Fly.io
+flyctl deploy
 ```
 
-to go to your newly created project.  
-Feel free to explore the project structure, but the best place to start with your application code is in `src/app.rs`.  
-Addtionally, Cargo.toml may need updating as new versions of the dependencies are released, especially if things are not working after a `cargo update`.
+## 🛠️ Development
 
-## Running your project
+### Prerequisites
+
+- Rust (nightly)
+- Node.js (for SASS compilation)
+- Cargo
+
+### Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/tyler-harpool/eos-blog.git
+cd eos-blog
+
+# Install dependencies
+cargo install cargo-leptos
+
+# Run the development server
 cargo leptos watch
 ```
 
-## Installing Additional Tools
+## 🧩 Architecture Details
 
-By default, `cargo-leptos` uses `nightly` Rust, `cargo-generate`, and `sass`. If you run into any trouble, you may need to install one or more of these tools.
+### Component Hierarchy
 
-1. `rustup toolchain install nightly --allow-downgrade` - make sure you have Rust nightly
-2. `rustup target add wasm32-unknown-unknown` - add the ability to compile Rust to WebAssembly
-3. `cargo install cargo-generate` - install `cargo-generate` binary (should be installed automatically in future)
-4. `npm install -g sass` - install `dart-sass` (should be optional in future
-5. Run `npm install` in end2end subdirectory before test
+- **App**: Main component that sets up routing and context
+- **Pages**: Individual page components (Home, About, Project, Areas, etc.)
+- **Components**: Reusable UI elements (Header, ProjectSearch, etc.)
 
-## Compiling for Release
-```bash
-cargo leptos build --release
-```
+### Data Flow
 
-Will generate your server binary in target/server/release and your site package in target/site
+1. **Content Loading**: Markdown files are parsed and converted to `Project` structs
+2. **Context Provision**: Projects, areas, and categories are provided via Leptos context
+3. **Rendering**: Components access data through context and render content
+4. **Interactivity**: Islands architecture enables client-side interactivity where needed
 
-## Testing Your Project
-```bash
-cargo leptos end-to-end
-```
+## 📈 Performance
 
-```bash
-cargo leptos end-to-end --release
-```
+The site is optimized for performance:
+- Server-side rendering for fast initial load
+- Selective hydration for interactive components
+- Optimized assets (CSS, images)
+- Efficient data loading and caching
 
-Cargo-leptos uses Playwright as the end-to-end test tool.  
-Tests are located in end2end/tests directory.
+## 👥 Contributing
 
-## Executing a Server on a Remote Machine Without the Toolchain
-After running a `cargo leptos build --release` the minimum files needed are:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. The server binary located in `target/server/release`
-2. The `site` directory and all files within located in `target/site`
+## 📄 License
 
-Copy these files to your remote server. The directory structure should be:
-```text
-tylerharpool-blog
-site/
-```
-Set the following environment variables (updating for your project as needed):
-```sh
-export LEPTOS_OUTPUT_NAME="tylerharpool-blog"
-export LEPTOS_SITE_ROOT="site"
-export LEPTOS_SITE_PKG_DIR="pkg"
-export LEPTOS_SITE_ADDR="127.0.0.1:3000"
-export LEPTOS_RELOAD_PORT="3001"
-```
-Finally, run the server binary.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Licensing
+---
 
-This template itself is released under the Unlicense. You should replace the LICENSE for your own application with an appropriate license if you plan to release it publicly.
+Built with ❤️ using Rust and Leptos
