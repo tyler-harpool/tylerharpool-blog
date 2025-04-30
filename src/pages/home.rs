@@ -1,15 +1,19 @@
 use leptos::prelude::*;
 use crate::model::Project;
-use crate::components::ProjectSearch;
+use crate::components::TaggedSearch;
 use leptos_meta::Title;
-use crate::utils::format::format_date;
+use leptos_router::hooks::use_query_map;
 
 #[component]
 pub fn HomePage(projects: Vec<Project>) -> impl IntoView {
-    let (projects_signal, _) = signal(projects);
+    let (projects_signal, _) = signal(projects.clone());
     let (current_page, set_current_page) = signal(1);
     let items_per_page = 6;
 
+    let query = use_query_map();
+    let tag_filter = move || {
+        query.with(|q| q.get("tag").map(|s| s.clone()).unwrap_or_default())
+    };
     // Get most recent posts
     let recent_posts = move || {
         let mut all = projects_signal.get().clone();
@@ -68,7 +72,10 @@ pub fn HomePage(projects: Vec<Project>) -> impl IntoView {
             </p>
 
             <div class="search-box">
-                <ProjectSearch projects={projects_signal.get()}/>
+            <TaggedSearch
+                projects={projects.clone()}
+                active_tag={tag_filter()}
+            />
             </div>
 
             <div class="articles-section">
@@ -80,62 +87,7 @@ pub fn HomePage(projects: Vec<Project>) -> impl IntoView {
                         </div>
                     }
                 >
-                    <div class="articles-grid">
-                        {move || {
-                            current_page_items().into_iter().map(|project| {
-                                let formatted_date = format_date(project.created_at);
-                                let decimal_id = if !project.jd_identifier.is_empty() {
-                                    project.jd_identifier.clone()
-                                } else {
-                                    project.jd_category.as_ref().map_or("".to_string(), |cat| {
-                                        format!("{}", cat.id)
-                                    })
-                                };
 
-                                view! {
-                                    <div class="article-card">
-                                        <div class="article-header">
-                                            {(!decimal_id.is_empty()).then(|| view! {
-                                                <div class="article-decimal">
-                                                    <span>{decimal_id}</span>
-                                                </div>
-                                            })}
-
-                                            <h3 class="article-title">
-                                                <a href={format!("/projects/{}", project.slug)}>
-                                                    {project.title}
-                                                </a>
-                                            </h3>
-                                        </div>
-
-                                        <p class="article-summary">{project.summary}</p>
-
-                                        <div class="article-meta">
-                                            <span class="article-date">{formatted_date}</span>
-
-                                            {project.jd_category.as_ref().map(|cat| {
-                                                view! {
-                                                    <div class="article-category">
-                                                        <a href={format!("/categories/{}", cat.id)}>
-                                                            {cat.name.clone()}
-                                                        </a>
-                                                    </div>
-                                                }
-                                            })}
-
-                                            <div class="article-tags">
-                                                {project.tech_stack.iter().take(3).map(|tech| {
-                                                    view! {
-                                                        <span class="article-tag">{tech.clone()}</span>
-                                                    }
-                                                }).collect::<Vec<_>>()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            }).collect::<Vec<_>>()
-                        }}
-                    </div>
 
                     // Pagination controls
                     <Show when=should_show_pagination>

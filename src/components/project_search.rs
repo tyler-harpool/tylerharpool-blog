@@ -156,8 +156,12 @@ pub fn ProjectSearch(projects: Vec<Project>) -> impl IntoView {
 
                                                 <div class="result-tags">
                                                     {project.tech_stack.iter().map(|tech| {
+                                                        let tag_for_link = tech.clone();
+                                                        let tag_for_display = tech.clone();
                                                         view! {
-                                                            <span class="result-tag">{tech.clone()}</span>
+                                                            <a href={format!("/?tag={}", tag_for_link)} class="result-tag">
+                                                                {tag_for_display}
+                                                            </a>
                                                         }
                                                     }).collect::<Vec<_>>()}
                                                 </div>
