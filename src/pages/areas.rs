@@ -3,21 +3,15 @@ use leptos::prelude::*;
 use leptos_meta::Title;  // Import Title for setting the document title
 use std::path::Path;  // Import Path for file handling
 use std::fs;
+use leptos::logging::log;
 
 #[component]
 pub fn AreasPage() -> impl IntoView {
-    let areas_signal = use_context::<ReadSignal<Vec<JDArea>>>()
-        .expect("Areas context not found!");
+  let areas_signal = use_context::<ReadSignal<Vec<JDArea>>>()
+      .expect("Areas context not found!");
 
-    // Read README files for descriptions
-    let get_area_description = |area_id: i64| {
-        let path = format!("./content/blog/{}-{:02} - {}/README.md", area_id / 10 * 10, area_id % 10, area_id); // modify this to match your folder structure
-        if Path::new(&path).exists() {
-            fs::read_to_string(path).unwrap_or_else(|_| "No description available".to_string())
-        } else {
-            "No description available".to_string()
-        }
-    };
+  let categories_signal = use_context::<ReadSignal<Vec<JDCategory>>>()
+      .expect("Categories context not found!");
 
     // Assuming you have a context for categories as well
     let categories_signal = use_context::<ReadSignal<Vec<JDCategory>>>()
@@ -34,7 +28,7 @@ pub fn AreasPage() -> impl IntoView {
             <div class="jd-areas">
                 {move || areas_signal.get().clone().into_iter().map(|area| {
                     // Fetch description from README file
-                    let area_description = get_area_description(area.id.into());  // Convert area.id to i64
+                    let area_description = area.description.clone();
 
                     // For each area, filter the associated categories
                     let area_categories = categories_signal.get().iter()

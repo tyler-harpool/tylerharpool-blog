@@ -88,9 +88,7 @@ pub fn extract_jd_info_from_path(path: &Path) -> (Option<u8>, Option<u8>, Option
         }
     }
 
-    // Debug info
-    println!("Path: {}, Area: {:?}, Category: {:?}, Item: {:?}",
-             path.display(), area_id, category_id, item_id);
+
 
     (area_id, category_id, item_id)
 }
@@ -252,7 +250,7 @@ fn parse_front_matter(content: &str) -> Option<(FrontMatter, String)> {
                 value = &value[1..value.len()-1];
             }
 
-            println!("Found key-value: '{}' = '{}'", key, value);
+
 
             match key {
                 "title" => title = value.to_string(),
@@ -261,7 +259,7 @@ fn parse_front_matter(content: &str) -> Option<(FrontMatter, String)> {
                 "area_id" => area_id = value.parse::<u8>().ok(),
                 "category_id" => category_id = value.parse::<u8>().ok(),
                 "summary" => {
-                    println!("Setting summary to: {}", value);
+
                     summary = Some(value.to_string())
                 },
                 "tags" => {
@@ -332,8 +330,7 @@ fn parse_front_matter(content: &str) -> Option<(FrontMatter, String)> {
     };
 
     // Debug the completed front matter
-    println!("Parsed front matter - Title: {}, Summary: {:?}",
-        front_matter.title, front_matter.summary);
+
 
     Some((front_matter, main_content.to_string()))
 }
@@ -406,12 +403,12 @@ pub fn markdown_to_projects(root_dir: &str, areas: &[JDArea], categories: &[JDCa
             };
 
             // Log what's happening for better debugging
-            leptos::logging::log!(
-                "Processing file: {}, Category: {:?}, JD Identifier: {}",
-                path.display(),
-                category.as_ref().map(|c| &c.name),
-                jd_identifier
-            );
+            // leptos::logging::log!(
+            //     "Processing file: {}, Category: {:?}, JD Identifier: {}",
+            //     path.display(),
+            //     category.as_ref().map(|c| &c.name),
+            //     jd_identifier
+            // );
 
             // Create project title
             let display_title = front_matter.title.clone();
