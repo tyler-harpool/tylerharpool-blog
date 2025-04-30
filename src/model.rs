@@ -17,9 +17,11 @@ pub struct Project {
     pub updated_at: SystemTime,
     pub jd_category: Option<JDCategory>,
 
+
     // New fields
     pub original_path: String,  // Store the original file path
     pub jd_identifier: String,  // Store the Johnny Decimal ID (e.g., "21.01")
+    pub related_articles: Vec<String>
 }
 
 // Johnny Decimal System structures

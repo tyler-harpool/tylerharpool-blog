@@ -11,6 +11,7 @@ pub struct FrontMatter {
     pub area_id: Option<u8>,
     pub category_id: Option<u8>,
     pub summary: Option<String>,
+    pub related_articles: Vec<String>
 }
 
 // Extract Johnny Decimal ID from path or filename
@@ -157,6 +158,7 @@ fn process_directory(dir: &Path, results: &mut Vec<(PathBuf, FrontMatter, String
                                 area_id,
                                 category_id,
                                 summary: Some(first_para),
+                                related_articles: Vec::new(),
                             };
                             (fm, content)
                         }
@@ -232,6 +234,7 @@ fn parse_front_matter(content: &str) -> Option<(FrontMatter, String)> {
     let mut area_id = None;
     let mut category_id = None;
     let mut summary = None;
+    let mut related_articles = Vec::new();
 
     // Parse YAML or TOML front matter
     for line in front_matter_str.lines() {
@@ -279,6 +282,24 @@ fn parse_front_matter(content: &str) -> Option<(FrontMatter, String)> {
                             .collect();
                     }
                 },
+                "related_articles" => {
+                    // Parse the related articles array
+                    if value.starts_with('[') && value.ends_with(']') {
+                        let articles_str = &value[1..value.len()-1];
+                        related_articles = articles_str
+                            .split(',')
+                            .map(|s| {
+                                let s = s.trim();
+                                if (s.starts_with('"') && s.ends_with('"')) ||
+                                   (s.starts_with('\'') && s.ends_with('\'')) {
+                                    s[1..s.len()-1].to_string()
+                                } else {
+                                    s.to_string()
+                                }
+                            })
+                            .collect();
+                    }
+                },
                 _ => {}
             }
         }
@@ -307,6 +328,7 @@ fn parse_front_matter(content: &str) -> Option<(FrontMatter, String)> {
         area_id,
         category_id,
         summary,
+        related_articles
     };
 
     // Debug the completed front matter
@@ -417,6 +439,7 @@ pub fn markdown_to_projects(root_dir: &str, areas: &[JDArea], categories: &[JDCa
                 jd_category: category,
                 original_path: path.to_string_lossy().to_string(),
                 jd_identifier,
+                related_articles: front_matter.related_articles
             }
         })
         .collect()
