@@ -55,6 +55,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 FROM chef AS builder
 WORKDIR /app
 # copy app
+RUN mkdir -p public
 COPY . .
 
 # copy cache
@@ -70,6 +71,10 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo leptos build --release -vv
 
 FROM debian:bookworm-slim as runtime
+LABEL org.opencontainers.image.source=https://github.com/tyler-harpool/tylerharpool-blog
+LABEL org.opencontainers.image.description="Tyler Harpool's personal blog"
+LABEL org.opencontainers.image.licenses=MIT
+
 WORKDIR /app
 
 # -- NB: update binary name from "tylerharpool-blog" to match your app name in Cargo.toml --
