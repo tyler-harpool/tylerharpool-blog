@@ -4,7 +4,9 @@
 FROM rustlang/rust:nightly-alpine AS deps-builder
 
 RUN apk update && \
-    apk add --no-cache bash curl npm libc-dev binaryen
+    apk add --no-cache bash curl npm libc-dev binaryen \
+    # Fix: Use the correct package name for pkg-config
+    pkgconfig openssl-dev
 
 RUN npm install -g sass
 
