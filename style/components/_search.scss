@@ -141,3 +141,51 @@
   color: #6c757d;
   font-style: italic;
 }
+
+
+.pagination-btn {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 4px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  border-color: #ccc;
+}
+
+.pagination-btn:active:not(:disabled) {
+  background-color: #d0d0d0;
+  transform: translateY(1px);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Specific styles for prev/next buttons */
+.prev-btn, .next-btn {
+  font-weight: bold;
+}
+
+.prev-btn::before {
+  content: "← ";
+}
+
+.next-btn::after {
+  content: " →";
+}
+
+/* Active page button */
+.pagination-btn.page-btn.active {
+  background-color: #3498db;
+  color: white;
+  border-color: #2980b9;
+}
