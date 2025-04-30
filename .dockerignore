@@ -1,2 +1,7 @@
-fly.toml
-.git/
+   .git
+   target
+   **/*.rs.bk
+   Dockerfile
+   .dockerignore
+   .env
+   **/node_modules
