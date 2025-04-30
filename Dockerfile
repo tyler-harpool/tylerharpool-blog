@@ -61,6 +61,9 @@ COPY . .
 # copy cache
 COPY --from=cacher /app/target /app/target
 
+# Create public directory - ADD THIS LINE
+RUN mkdir -p public
+
 # Build the app
 RUN /bin/bash -c "source $NVM_DIR/nvm.sh \
         && npm install"
