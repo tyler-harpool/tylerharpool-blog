@@ -4,8 +4,8 @@ FROM ubuntu:22.04 as chef
 # install standard stuff
 RUN apt-get update && apt-get install -y curl build-essential clang
 
-# Get Rust
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+# Get Rust - INSTALL NIGHTLY EXPLICITLY
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --default-toolchain nightly
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Add the WASM target
@@ -30,7 +30,6 @@ RUN . $NVM_DIR/nvm.sh && ln -s $NVM_DIR/$(nvm current) $NVM_DIR/cur && ln -s $NV
 ENV NODE_PATH $NVM_DIR/cur/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/cur/bin:$PATH
 
-
 ## planner
 FROM chef AS planner
 WORKDIR /app
@@ -43,41 +42,37 @@ COPY --from=planner /app/recipe.json recipe.json
 
 # -- NB: update --package= name from "tylerharpool-blog" to match your app name in Cargo.toml --
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo chef cook --release --package=tylerharpool-blog --bin=tylerharpool-blog --target-dir=target/ --recipe-path recipe.json
+--mount=type=cache,target=/usr/local/cargo/git \
+--mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+cargo chef cook --release --package=tylerharpool-blog --bin=tylerharpool-blog --target-dir=target/ --recipe-path recipe.json
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo chef cook --release --package=tylerharpool-blog --target-dir=target/front --target=wasm32-unknown-unknown --recipe-path recipe.json
+--mount=type=cache,target=/usr/local/cargo/git \
+--mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+cargo chef cook --release --package=tylerharpool-blog --target-dir=target/front --target=wasm32-unknown-unknown --recipe-path recipe.json
 
 # builder
 FROM chef AS builder
 WORKDIR /app
 # copy app
-RUN mkdir -p public
 COPY . .
 
 # copy cache
 COPY --from=cacher /app/target /app/target
 
-# Create public directory - ADD THIS LINE
+# Create public directory
 RUN mkdir -p public
+RUN touch public/.gitkeep
 
 # Build the app
 RUN /bin/bash -c "source $NVM_DIR/nvm.sh \
-        && npm install"
+&& npm install"
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo leptos build --release -vv
+--mount=type=cache,target=/usr/local/cargo/git \
+--mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+cargo leptos build --release -vv
 
 FROM debian:bookworm-slim as runtime
-LABEL org.opencontainers.image.source=https://github.com/tyler-harpool/tylerharpool-blog
-LABEL org.opencontainers.image.description="Tyler Harpool's personal blog"
-LABEL org.opencontainers.image.licenses=MIT
-
 WORKDIR /app
 
 # -- NB: update binary name from "tylerharpool-blog" to match your app name in Cargo.toml --
@@ -87,7 +82,7 @@ COPY --from=builder /app/target/release/tylerharpool-blog /app/
 # /target/site contains our JS/WASM/CSS, etc.
 COPY --from=builder /app/target/site /app/site
 
-# Copy Cargo.toml if it’s needed at runtime
+# Copy Cargo.toml if it's needed at runtime
 COPY --from=builder /app/Cargo.toml /app/
 # Copy markdown to container
 COPY --from=builder /app/content/blog /app/content/blog
