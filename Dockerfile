@@ -3,13 +3,14 @@
 # -----------------------------------------------------------------------------
 FROM rustlang/rust:nightly-alpine AS deps-builder
 
+# Install only the essential build dependencies
 RUN apk update && \
-    apk add --no-cache bash curl npm libc-dev binaryen \
-    # Fix: Use the correct package name for pkg-config
-    pkgconfig openssl-dev
+    apk add --no-cache bash curl npm libc-dev pkgconfig
 
+# Install SASS for styling
 RUN npm install -g sass
 
+# Install cargo-leptos
 RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/leptos-rs/cargo-leptos/releases/latest/download/cargo-leptos-installer.sh | sh
 
 # Add the WASM target
@@ -20,16 +21,21 @@ WORKDIR /app
 # First, only copy the files needed to determine dependencies
 COPY Cargo.toml Cargo.lock* ./
 
+# Create required directories
+RUN mkdir -p src public
+
 # Create dummy source files to build dependencies
-RUN mkdir -p src && \
-    echo "fn main() {}" > src/main.rs && \
+RUN echo "fn main() {}" > src/main.rs && \
     echo "pub fn dummy() {}" > src/lib.rs
 
-# Build dependencies - this layer will be cached unless Cargo.toml/Cargo.lock changes
-RUN cargo leptos build --release -vv
+# Create a dummy file in public directory to ensure it exists
+RUN touch public/.keep
 
-# Remove the dummy source files and compiled artifacts
-RUN rm -rf src target
+# Build dependencies - this layer will be cached unless Cargo.toml/Cargo.lock changes
+RUN cargo leptos build --release -vv || true
+
+# Remove the dummy source files and compiled artifacts but keep the dependencies
+RUN rm -rf src public/* target/server target/front
 
 # -----------------------------------------------------------------------------
 # 2. Main builder stage that uses the cached dependencies
@@ -39,21 +45,20 @@ FROM deps-builder AS builder
 # Now copy all source files
 COPY . .
 
+# Ensure public directory exists (create if not present in your project)
+RUN mkdir -p public
+
 # Build the actual application
 RUN cargo leptos build --release -vv
 
 # -----------------------------------------------------------------------------
 # 3. Final runner stage with minimal dependencies
 # -----------------------------------------------------------------------------
-FROM rustlang/rust:nightly-alpine AS runner
+FROM alpine:latest AS runner
 
+# Install only the minimal runtime dependencies
 RUN apk update && \
-    apk add --no-cache \
-    chromium \
-    ttf-freefont \
-    udev \
-    font-noto-emoji \
-    tslib
+    apk add --no-cache ca-certificates
 
 WORKDIR /app
 
