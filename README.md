@@ -2,7 +2,7 @@
 
 A modern, organized personal blog system built with Leptos, Rust, and the Johnny Decimal organizational framework. Named after Eos, the Greek goddess of dawn, bringing light to your thoughts and ideas.
 
-![Blog Screenshot](https://example.com/blog-screenshot.png)
+![Blog Screenshot](https://tylerharpool.fly.dev/screenshot.png)
 
 ## 🌟 Features
 
