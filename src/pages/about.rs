@@ -109,17 +109,13 @@ pub fn AboutPage() -> impl IntoView {
                 <section class="contact">
                     <h2>"Get in Touch"</h2>
                     <div class="social-links">
-                        <a href="https://github.com/tylerharpool" target="_blank" rel="noopener noreferrer" class="social-link">
-                            <span class="social-icon">_github</span>
+                        <a href="https://github.com/tyler-harpool" target="_blank" rel="noopener noreferrer" class="social-link">
+                            <span class="social-icon">Github</span>
                             "GitHub"
                         </a>
-                        <a href="https://linkedin.com/in/tylerharpool" target="_blank" rel="noopener noreferrer" class="social-link">
-                            <span class="social-icon">_linkedin</span>
+                        <a href="https://www.linkedin.com/in/tyler-harpool-16a487159/" target="_blank" rel="noopener noreferrer" class="social-link">
+                            <span class="social-icon">Linkedin</span>
                             "LinkedIn"
-                        </a>
-                        <a href="mailto:contact@tylerharpool.com" class="social-link">
-                            <span class="social-icon">_email</span>
-                            "Email"
                         </a>
                     </div>
                 </section>
