@@ -1,0 +1,237 @@
+---
+id: 14.02
+area_id: 10
+category_id: 14
+title: Getting Started with SpinKube: Deploy WebAssembly Serverless Apps to Kubernetes
+author: Tyler Harpool
+date: 2025-06-09
+summary: Why WebAssembly is Revolutionizing Serverless
+tags: [WebAssembly, Web Development, Serverless, Ferymon, Spin, Spinkube]
+thumbnail: /images/thumbnails/01-thumbnail.jpg
+draft: false
+related_articles: []
+---
+# Getting Started with SpinKube: Deploy WebAssembly Serverless Apps to Kubernetes
+
+## Why WebAssembly is Revolutionizing Serverless
+
+Imagine running 1,000+ serverless functions on a single 4-core Kubernetes node. Sound impossible? That's exactly what Fermyon demonstrated at Google Cloud Next 2025 using SpinKube and WebAssembly. While traditional container-based serverless struggles with cold starts measured in seconds, WebAssembly-powered applications start in **sub-milliseconds**.
+
+This isn't just about speed—it's about fundamentally reimagining cloud economics. Organizations using SpinKube report **60% cost reductions** compared to traditional Kubernetes workloads. On Google Cloud Platform, where a 4-core GKE node costs ~$140/month, you can run applications at just $0.14/month each instead of the typical $4.01/month with containers. That's a 96.5% cost reduction per application!
+
+### What Makes This Magic Possible?
+
+**WebAssembly (WASM)** provides a secure, portable bytecode format that runs at near-native speed. Unlike containers that virtualize entire operating systems, WASM modules are tiny (often under 10MB) and start instantly.
+
+**Spin** is Fermyon's open-source framework that makes building WebAssembly microservices as easy as traditional web apps. It handles the complexity of WASM while providing familiar patterns for HTTP handlers, databases, and more.
+
+**SpinKube** brings WebAssembly workloads to Kubernetes as first-class citizens. It's now a CNCF Sandbox project, validating its technical merit and growing ecosystem.
+
+Today, we'll walk through deploying your first Spin application to Kubernetes using Rancher Desktop. You'll see firsthand how this technology delivers on its promises of simplicity and efficiency.
+
+## Prerequisites and Setup
+
+Before we dive in, let's get our environment ready. While SpinKube supports various Kubernetes distributions ([see quickstart options](https://www.spinkube.dev/docs/install/quickstart/)), I've chosen Rancher Desktop for its excellent local development experience.
+
+### Required Tools and Versions
+
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) - Kubernetes CLI
+- [Spin v3.2.0](https://spinframework.dev/v3/install) - The WebAssembly framework
+- [Rancher Desktop v1.19.1](https://github.com/rancher-sandbox/rancher-desktop/releases) - Local Kubernetes
+
+### Configuring Rancher Desktop
+
+Here's the critical part that tripped me up initially: **you must select containerd as your container engine**, not dockerd.
+
+![Rancher Desktop Configuration](rancher-config.png)
+
+If you use dockerd, you'll encounter this frustrating error when deploying:
+```
+Failed to create pod sandbox: rpc error: code = Unknown desc = RuntimeHandler "spin" not supported
+```
+
+### Installing the Spin Operator
+
+Navigate to your cluster dashboard → More Resources → Cert Manager, and verify you have the Spin operator with a self-signed cert issuer installed. If you encounter errors, ensure Traefik is enabled in your cluster configuration.
+
+![Cert Manager Configuration](cert-manager.png)
+
+## Creating Your First Spin Application
+
+Now for the exciting part—let's build a WebAssembly serverless function! First, ensure you have the latest templates:
+
+```bash
+spin templates upgrade
+```
+
+This command updates all templates for Rust, TypeScript, Go, and other supported languages. Using outdated templates with newer Spin versions can cause compatibility issues.
+
+### Generate a New Application
+
+```bash
+spin new
+```
+
+When prompted:
+- Template: `http-rust` (HTTP request handler using Rust)
+- Name: `hello_rust`
+- HTTP path: `/...`
+
+### Understanding the Code Structure
+
+Let's examine what Spin generated. In `src/lib.rs`:
+
+```rust
+use spin_sdk::http::{IntoResponse, Request, Response};
+use spin_sdk::http_component;
+
+/// A simple Spin HTTP component.
+#[http_component]
+fn handle_hello_rust(req: Request) -> anyhow::Result<impl IntoResponse> {
+    println!("Handling request to {:?}", req.header("spin-full-url"));
+    Ok(Response::builder()
+        .status(200)
+        .header("content-type", "text/plain")
+        .body("Hello, Fermyon")
+        .build())
+}
+```
+
+The `spin_sdk` provides helpers for building [WASI-HTTP](https://github.com/WebAssembly/wasi-http) components—the WebAssembly system interface for HTTP. This abstraction lets you write familiar HTTP handlers that compile to efficient WASM modules.
+
+### The Power of spin.toml
+
+The `spin.toml` file is where the magic happens. It's like `package.json` for Spin applications but with superpowers:
+
+```toml
+# Define the HTTP trigger
+[[trigger.http]]
+route = "/hello"
+component = "hello"
+
+# Define the component
+[component.hello]
+description = "A simple component that returns hello world."
+source = "target/wasm32-wasi/release/hello_rust.wasm"
+
+[component.hello.build]
+command = "cargo build --target wasm32-wasi --release"
+```
+
+This configuration enables:
+- **Microservice composition**: Chain multiple components with different triggers
+- **Environment management**: Define variables and integrate with secret stores like Vault
+- **Build automation**: Specify how to compile your WASM modules
+
+Learn more about [spin.toml capabilities](https://spinframework.dev/v2/writing-apps).
+
+## Deploying to Kubernetes
+
+Time to see our application running in a real Kubernetes cluster! We'll use [ttl.sh](https://ttl.sh/), an ephemeral container registry perfect for testing (images expire after 1 hour).
+
+### Step 1: Build and Push
+
+Navigate to your project directory and push your container:
+
+```bash
+spin registry push ttl.sh/hello-rust:0.1.0
+```
+
+### Step 2: Generate Kubernetes Manifests
+
+```bash
+spin kube scaffold --from ttl.sh/hello-rust:0.1.0
+```
+
+This generates a SpinApp custom resource:
+
+```yaml
+apiVersion: core.spinkube.dev/v1alpha1
+kind: SpinApp
+metadata:
+  name: hello-rust
+spec:
+  image: "ttl.sh/hello-rust:0.1.0"
+  executor: containerd-shim-spin
+  replicas: 2
+```
+
+Notice the `containerd-shim-spin` executor—this is what enables those sub-millisecond cold starts!
+
+### Step 3: Deploy to Kubernetes
+
+```bash
+spin kube deploy --from ttl.sh/hello-rust:0.1.0
+```
+
+![Deployment Success](deployment-success.png)
+
+### Step 4: Access Your Application
+
+In Rancher Desktop, navigate to the Port Forwarding tab and click the forward button for your app. Alternatively, use kubectl:
+
+```bash
+kubectl port-forward svc/hello-rust 3000:80
+```
+
+Visit `http://localhost:3000/hello` to see your WebAssembly function responding instantly!
+
+![Running Application](running-app.png)
+
+## The Developer Experience: Rapid Iteration
+
+Let's test the development workflow by making a change. Open your editor (I recommend [Zed](https://zed.dev) for its speed) and modify `src/lib.rs`:
+
+```rust
+// Change this line:
+.body("Hello, Fermyon")
+
+// To:
+.body("Hello, SpinKube World!")
+```
+
+Now redeploy with a new version:
+
+```bash
+# Build and push v0.2.0
+spin registry push ttl.sh/hello-rust:0.2.0
+
+# Generate updated manifest
+spin kube scaffold --from ttl.sh/hello-rust:0.2.0
+
+# Deploy the update
+spin kube deploy --from ttl.sh/hello-rust:0.2.0
+```
+
+![Updated Application](updated-app.png)
+
+In under 30 seconds, you've updated a running Kubernetes application—no waiting for container builds or image pulls!
+
+## Why This Matters
+
+You've just deployed a WebAssembly serverless function that:
+- Starts in **<1ms** vs 2+ seconds for containers
+- Uses **10MB** of memory vs 512MB+ for typical containers
+- Costs **$0.14/month** to run vs $4.01/month for container equivalents
+- Scales to zero without cold start penalties
+
+This tutorial only scratches the surface. SpinKube supports:
+- Event-driven architectures with Redis, SQS, and MQTT triggers
+- Multi-language development (Rust, Go, JavaScript, Python)
+- Component composition for complex microservices
+- Integration with GCP services like Cloud Run and Pub/Sub
+
+## Next Steps
+
+1. **Explore triggers**: Try Redis pub/sub or scheduled jobs with command triggers
+2. **Build real applications**: Add SQLite or PostgreSQL for persistence
+3. **Scale testing**: Deploy 100+ functions to see the density benefits
+4. **Production deployment**: Move from ttl.sh to Google Container Registry for GKE
+
+The future of serverless is here, and it's powered by WebAssembly. With SpinKube, you're not just saving money—you're building applications that are fundamentally more efficient, secure, and scalable.
+
+Ready to revolutionize your cloud infrastructure? Start with [SpinKube documentation](https://www.spinkube.dev/) and join the [community](https://github.com/spinkube) building the next generation of cloud computing.
+
+---
+
+*Performance metrics based on Fermyon demonstrations at Google Cloud Next 2025 and real-world deployments. Cost calculations use current GCP pricing as of June 2025.*
