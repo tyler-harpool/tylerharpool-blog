@@ -43,7 +43,7 @@ Before we dive in, let's get our environment ready. While SpinKube supports vari
 
 Here's the critical part that tripped me up initially: **you must select containerd as your container engine**, not dockerd.
 
-![Rancher Desktop Configuration](rancher-config.png)
+![Rancher Desktop Configuration](../.images/rancher-config.png)
 
 If you use dockerd, you'll encounter this frustrating error when deploying:
 ```
